@@ -56,6 +56,12 @@ define(['app-config', 'config', 'sulucontent/components/content/preview/main'], 
             this.sandbox.on('sulu.toolbar.save', function(action) {
                 this.submit(action);
             }, this);
+
+            // navigate away
+            this.sandbox.on('sulu.content.navigate', this.navigate, this);
+            this.sandbox.on('sulu.content.contents.saved', function() {
+                this.setHeaderBar(true);
+            }, this);
         },
 
         initializeResourceLocator: function() {
@@ -474,6 +480,27 @@ define(['app-config', 'config', 'sulucontent/components/content/preview/main'], 
                     }
                 }
             ]);
+        },
+
+        navigate: function(route) {
+            var doNavigate = function(route) {
+                this.sandbox.emit('sulu.router.navigate', route);
+            }.bind(this);
+
+            if (this.contentChanged) {
+                this.sandbox.emit('sulu.overlay.show-warning',
+                    'sulu.overlay.be-careful',
+                    'content.template.dialog.content',
+                    function() {
+                    },
+                    function() {
+                        // ok callback
+                        doNavigate.call(this, route);
+                    }.bind(this)
+                );
+            } else {
+                doNavigate.call(this, route);
+            }
         }
     };
 });

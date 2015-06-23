@@ -25,6 +25,7 @@ define(function() {
             dataAttribute: 'media-selection',
             actionIcon: 'fa-file-image-o',
             types: null,
+            navigateEvent: 'sulu.router.navigate',
             dataDefault: {
                 displayOption: 'top',
                 ids: []
@@ -59,10 +60,36 @@ define(function() {
         },
 
         templates = {
-            contentItem: function(title, thumbnails) {
+            mediaSelection: function(options) {
                 return [
+                    '<div class="media-selection-overlay">',
+                    '   <div class="media-selection-overlay-navigation-container pull-left"></div>',
+                    '   <div class="media-selection-overlay-content">',
+                    '       <div class="fa-times media-selection-overlay-close"></div>',
+                    '       <div class="media-selection-overlay-dropzone-container"></div>',
+                    '       <div class="media-selection-overlay-header" ondragstart="return false;">',
+                    '           <div class="media-selection-overlay-toolbar-container"></div>',
+                    '           <div id="selected-images-count" class="media-selection-overlay-selected-info"></div>',
+                    '       </div>',
+                    '       <div class="media-selection-overlay-content-area" ondragstart="return false;">',
+                    '           <div class="media-selection-overlay-content-title">', options.contentDefaultTitle, '</div>',
+                    '           <div class="media-selection-overlay-datagrid-container"></div>',
+                    '       </div>',
+                    '   </div>',
+                    '</div>'
+                ].join('');
+            },
+
+            mediaSelectedInfo: function(options) {
+                return options.selectedCounter + ' ' + options.selectedImagesLabel;
+            },
+
+            contentItem: function(id, collection, title, thumbnails) {
+                return [
+                    '<a href="#" class="link" data-id="', id, '" data-collection="', collection, '">',
                     '   <img src="', thumbnails['50x50'], '"/>',
-                    '   <span class="title">', title, '</span>'
+                    '   <span class="title">', title, '</span>',
+                    '</a>'
                 ].join('');
             }
         },
@@ -126,6 +153,23 @@ define(function() {
         },
 
         /**
+         * Bind events to dom elements
+         */
+        bindDomEvents = function() {
+            this.sandbox.dom.on(this.$el, 'click', function(e) {
+                var id = this.sandbox.dom.data(e.currentTarget, 'id'),
+                    collection = this.sandbox.dom.data(e.currentTarget, 'collection');
+
+                this.sandbox.emit(
+                    this.options.navigateEvent,
+                    'media/collections/edit:' + collection + '/files/edit:' + id
+                );
+
+                return false;
+            }.bind(this), 'a.link');
+        },
+
+        /**
          * Starts the selection-overlay component
          */
         startSelectionOverlay = function() {
@@ -177,6 +221,8 @@ define(function() {
             };
 
             bindCustomEvents.call(this);
+            bindDomEvents.call(this);
+
             this.render();
 
             // set display option
@@ -202,7 +248,7 @@ define(function() {
         },
 
         getItemContent: function(item) {
-            return templates.contentItem(item.title, item.thumbnails);
+            return templates.contentItem(item.id, item.collection, item.title, item.thumbnails);
         },
 
         sortHandler: function(ids) {
