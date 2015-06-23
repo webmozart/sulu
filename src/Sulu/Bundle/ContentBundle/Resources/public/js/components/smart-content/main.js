@@ -124,6 +124,8 @@ define(['services/husky/util'], function(util) {
             titleKey: 'title',
             imageKey: 'image',
             pathKey: 'path',
+            localeKey: 'locale',
+            webspaceKey: 'webspaceKey',
             translations: {},
             elementDataName: 'smart-content',
             externalConfigs: false,
@@ -197,11 +199,13 @@ define(['services/husky/util'], function(util) {
             ].join(''),
             contentItem: [
                 '<li data-id="<%= dataId %>">',
-                '    <span class="num"><%= num %></span>',
+                '    <a href="#" data-id="<%= dataId %>" data-webspace="<%= webspace %>" data-locale="<%= locale %>" class="link">',
+                '        <span class="num"><%= num %></span>',
                 '<% if (!!image) { %>',
-                '    <span class="image"><img src="<%= image %>"/></span>',
+                '        <span class="image"><img src="<%= image %>"/></span>',
                 '<% } %>',
-                '    <span class="value"><%= value %></span>',
+                '        <span class="value"><%= value %></span>',
+                '    </a>',
                 '</li>'
             ].join(''),
             categoryItem: [
@@ -399,6 +403,7 @@ define(['services/husky/util'], function(util) {
             this.startLoader();
             this.startOverlay();
             this.bindEvents();
+            this.bindDomEvents();
             this.setURI();
             this.loadContent();
 
@@ -593,7 +598,7 @@ define(['services/husky/util'], function(util) {
                 var ul = this.sandbox.dom.createElement('<ul class="' + constants.contentListClass + '"/>');
 
                 this.sandbox.util.foreach(this.items, function(item, index) {
-                    this.sandbox.dom.append(ul, _.template(templates.contentItem)({
+                    this.sandbox.dom.append(ul, _.template(templates.contentItem, {
                         dataId: item[this.options.idKey],
                         value: item[this.options.titleKey],
                         image: item[this.options.imageKey] || null,
@@ -650,6 +655,24 @@ define(['services/husky/util'], function(util) {
                 this.setURI();
                 this.loadContent();
             }.bind(this));
+        },
+
+        /**
+         * Binds dom events
+         */
+        bindDomEvents: function() {
+            this.sandbox.dom.on(this.$el, 'click', function(e) {
+                var id = this.sandbox.dom.data(e.currentTarget, 'id'),
+                    webspace = this.sandbox.dom.data(e.currentTarget, 'webspace'),
+                    locale = this.sandbox.dom.data(e.currentTarget, 'locale');
+
+                this.sandbox.emit(
+                    this.options.navigateEvent,
+                    'content/contents/' + webspace + '/' + locale + '/edit:' + id + '/details'
+                );
+
+                return false;
+            }.bind(this), 'a.link');
         },
 
         /**
