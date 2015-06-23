@@ -131,8 +131,9 @@ define(['services/husky/util'], function(util) {
             title: 'Smart-Content',
             datasource: null,
             categoryRoot: null,
-            displayOptions: {}
-        },
+            displayOptions: {},
+    navigateEvent: 'sulu.router.navigate'
+},
 
         displayOptionsDefaults = {
             tags: true,
