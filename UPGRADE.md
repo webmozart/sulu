@@ -2,6 +2,15 @@
 
 ## dev-develop
 
+### Custom-URLS
+
+Additional system nodes added by the custom-url feature. Run following command to add
+them.
+
+```bash
+app/console sf sulu:webspaces:init
+```
+
 ### Definition of security contexts
 
 The definition of security contexts in the `Admin` classes has changed. They
