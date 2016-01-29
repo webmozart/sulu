@@ -33107,10 +33107,10 @@ define('husky_components/datagrid/decorators/infinite-scroll-pagination',[],func
                     }
                     return date;
                 },
-                
+
                 /**
                  * Brings a datetime into the right format
-                 * @param date {String} the date to parse
+                 * @param datetime {String} the date to parse
                  * @returns {String}
                  */
                 datetime: function(datetime) {
@@ -33119,19 +33119,6 @@ define('husky_components/datagrid/decorators/infinite-scroll-pagination',[],func
                         return parsedDate;
                     }
                     return datetime;
-                },
-
-                /**
-                 * Brings a datetime into the right format
-                 * @param date {String} the date to parse
-                 * @returns {String}
-                 */
-                datetime: function(date) {
-                    var parsedDate = this.sandbox.date.format(date, true);
-                    if (parsedDate !== null) {
-                        return parsedDate;
-                    }
-                    return date;
                 },
 
                 /**
