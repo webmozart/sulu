@@ -62,34 +62,39 @@ class Category implements AuditableInterface
     private $defaultLocale;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var Collection
      */
     private $meta;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var Collection
      */
     private $translations;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection
+     * @var Collection
      */
     private $children;
 
     /**
-     * @var \Sulu\Bundle\CategoryBundle\Entity\Category
+     * @var Category
      */
     private $parent;
 
     /**
-     * @var \Sulu\Component\Security\Authentication\UserInterface
+     * @var UserInterface
      */
     private $creator;
 
     /**
-     * @var \Sulu\Component\Security\Authentication\UserInterface
+     * @var UserInterface
      */
     private $changer;
+
+    /**
+     * @var Collection
+     */
+    private $keyWords;
 
     /**
      * Constructor.
@@ -99,6 +104,7 @@ class Category implements AuditableInterface
         $this->meta = new ArrayCollection();
         $this->translations = new ArrayCollection();
         $this->children = new ArrayCollection();
+        $this->keyWords = new ArrayCollection();
     }
 
     /**
@@ -457,5 +463,77 @@ class Category implements AuditableInterface
     public function getChanger()
     {
         return $this->changer;
+    }
+
+    /**
+     * Add metum
+     *
+     * @param CategoryMeta $metum
+     *
+     * @return Category
+     */
+    public function addMetum(CategoryMeta $metum)
+    {
+        $this->meta[] = $metum;
+
+        return $this;
+    }
+
+    /**
+     * Remove metum
+     *
+     * @param CategoryMeta $metum
+     */
+    public function removeMetum(CategoryMeta $metum)
+    {
+        $this->meta->removeElement($metum);
+    }
+
+    /**
+     * Add keyWord
+     *
+     * @param KeyWord $keyWord
+     *
+     * @return Category
+     */
+    public function addKeyWord(KeyWord $keyWord)
+    {
+        $this->keyWords[] = $keyWord;
+
+        return $this;
+    }
+
+    /**
+     * Remove keyWord
+     *
+     * @param KeyWord $keyWord
+     */
+    public function removeKeyWord(KeyWord $keyWord)
+    {
+        $this->keyWords->removeElement($keyWord);
+    }
+
+    /**
+     * Get keyWords
+     *
+     * @return Collection
+     */
+    public function getKeyWords()
+    {
+        return $this->keyWords;
+    }
+
+    /**
+     * Returns true if given keyword already linked with the category.
+     *
+     * @return bool
+     */
+    public function hasKeyWord(KeyWord $keyWord)
+    {
+        return $this->getKeyWords()->exists(
+            function ($key, KeyWord $element) use ($keyWord) {
+                return $element->compareWith($keyWord);
+            }
+        );
     }
 }
