@@ -12,5 +12,16 @@
                    data-validation-required="false"
                    data-mapper-property="key"/>
         </div>
+
+        <% if (!!keyWords) { %>
+        <div class="grid-col-12 floating section section-content">
+            <h2 class="divider m-bottom-20" title=""><%= translations.keyWords %></h2>
+
+            <div>
+                <div id="key-words-list-toolbar"/>
+                <div id="key-words-list"/>
+            </div>
+        </div>
+        <% } %>
     </div>
 </form>

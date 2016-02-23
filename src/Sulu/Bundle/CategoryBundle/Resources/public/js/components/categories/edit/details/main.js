@@ -18,12 +18,16 @@ define(['text!./form.html'], function(form) {
                 newCategoryTitle: 'sulu.category.new-category'
             },
             templates: {
-                form: form
+                form: form,
+                keyWordsUrl: '/admin/api/categories/<%= category %>/key-words<%= postfix %>?locale=<%= locale %><% if (typeof ids !== "undefined") { %>&ids=<%= ids.join(",") %><% } %>'
             },
             translations: {
                 name: 'public.name',
                 key: 'public.key',
-                categoryKey: 'sulu.category.category-key'
+                categoryKey: 'sulu.category.category-key',
+                keyWords: 'sulu.category.key-words',
+                keyWordDeleteLabel: 'labels.success.delete-desc',
+                keyWordDeleteMessage: 'labels.success.delete-desc'
             }
         },
 
@@ -102,17 +106,76 @@ define(['text!./form.html'], function(form) {
 
             this.sandbox.dom.html(
                 this.$el,
-                this.templates.form({placeholder: placeholder, translations: this.translations})
+                this.templates.form({
+                    placeholder: placeholder,
+                    translations: this.translations,
+                    keyWords: !!this.options.data.id
+                })
             );
             this.sandbox.form.create(constants.detailsFromSelector);
             this.sandbox.form.setData(constants.detailsFromSelector, this.data).then(function() {
                 this.bindDomEvents();
+
+                if (!!this.options.data.id) {
+                    this.startKeyWordList();
+                }
+            }.bind(this));
+        },
+
+        /**
+         * starts editable list for key-words.
+         */
+        startKeyWordList: function() {
+            this.sandbox.sulu.initListToolbarAndList.call(
+                this,
+                'key-words',
+                this.templates.keyWordsUrl({category: this.options.data.id, postfix: '/fields', locale: this.locale}),
+                {
+                    el: this.$find('#key-words-list-toolbar'),
+                    template: this.sandbox.sulu.buttons.get({
+                        add: {options: {position: 0}},
+                        deleteSelected: {
+                            options: {
+                                position: 1, callback: function() {
+                                    this.deleteKeyWords();
+                                }.bind(this)
+                            }
+                        }
+                    }),
+                    parentTemplate: 'default',
+                    listener: 'default'
+                },
+                {
+                    el: this.$find('#key-words-list'),
+                    url: this.templates.keyWordsUrl({category: this.options.data.id, postfix: '', locale: this.locale}),
+                    resultKey: 'key-words',
+                    searchFields: ['keyWord'],
+                    saveParams: {locale: this.locale},
+                    viewOptions: {
+                        table: {
+                            editable: true,
+                            validation: true
+                        }
+                    }
+                },
+                'key-words'
+            );
+
+            // add clicked
+            this.sandbox.on('sulu.toolbar.add', function() {
+                this.sandbox.emit('husky.datagrid.record.add', {
+                    id: '',
+                    keyWord: '',
+                    locale: this.locale
+                });
             }.bind(this));
         },
 
         changeHandler: function(category) {
             this.prepareData(category);
             this.sandbox.form.setData(constants.detailsFromSelector, this.data);
+
+            this.sandbox.emit('husky.datagrid.url.update', {locale: this.locale});
         },
 
         /**
@@ -138,6 +201,37 @@ define(['text!./form.html'], function(form) {
                     this.sandbox.emit('sulu.category.categories.list');
                 }.bind(this));
             }
+        },
+
+        /**
+         * Deletes the selected key-words.
+         */
+        deleteKeyWords: function() {
+            this.sandbox.emit('husky.datagrid.items.get-selected', function(ids) {
+                this.sandbox.sulu.showDeleteDialog(function(confirmed) {
+                    if (confirmed === true) {
+                        this.sandbox.util.save(
+                            this.templates.keyWordsUrl({
+                                category: this.options.data.id,
+                                postfix: '',
+                                locale: this.locale,
+                                ids: ids
+                            }),
+                            'DELETE'
+                        ).then(function() {
+                            for (var i = 0, length = ids.length; i < length; i++) {
+                                this.sandbox.emit('husky.datagrid.record.remove', ids[i]);
+                            }
+
+                            this.sandbox.emit(
+                                'sulu.labels.success.show',
+                                this.translations.keyWordDeleteMessage,
+                                this.translations.keyWordDeleteLabel
+                            );
+                        }.bind(this));
+                    }
+                }.bind(this));
+            }.bind(this));
         },
 
         /**

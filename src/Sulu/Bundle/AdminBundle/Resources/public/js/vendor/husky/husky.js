@@ -31577,7 +31577,7 @@ define('husky_components/datagrid/decorators/table-view',[],function() {
             if (hasChanged === true) {
                 // pass data to datagrid to save it
                 this.datagrid.saveGrid.call(this.datagrid,
-                    record, this.datagrid.getUrlWithoutParams.call(this.datagrid),
+                    record, this.datagrid.getSaveUrl.call(this.datagrid),
                     successCallback, errorCallback, this.options.addRowTop);
             } else {
                 typeof successCallback === 'function' && successCallback(record);
@@ -33019,6 +33019,7 @@ define('husky_components/datagrid/decorators/infinite-scroll-pagination',[],func
                 sortable: true,
                 matchings: [],
                 url: null,
+                saveParams: {},
                 data: null,
                 instanceName: '',
                 searchInstanceName: null,
@@ -33099,7 +33100,7 @@ define('husky_components/datagrid/decorators/infinite-scroll-pagination',[],func
                     }
                     return date;
                 },
-                
+
                 /**
                  * Brings a datetime into the right format
                  * @param date {String} the date to parse
@@ -34536,6 +34537,19 @@ define('husky_components/datagrid/decorators/infinite-scroll-pagination',[],func
 
                 if (url.indexOf('?') !== -1) {
                     return url.substring(0, url.indexOf('?'));
+                }
+
+                return url;
+            },
+
+            /**
+             * Returns url for save
+             */
+            getSaveUrl: function() {
+                var url = this.getUrlWithoutParams();
+
+                for (var key in this.options.saveParams) {
+                    url = setGetParameter.call(this, url, key, this.options.saveParams[key]);
                 }
 
                 return url;

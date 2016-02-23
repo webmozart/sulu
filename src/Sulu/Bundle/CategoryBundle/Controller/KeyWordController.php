@@ -17,7 +17,11 @@ use Sulu\Bundle\CategoryBundle\Category\CategoryManagerInterface;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordManager;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordRepositoryInterface;
 use Sulu\Bundle\CategoryBundle\Entity\KeyWord;
+use Sulu\Component\Rest\ListBuilder\Doctrine\DoctrineListBuilderFactory;
+use Sulu\Component\Rest\ListBuilder\FieldDescriptorInterface;
+use Sulu\Component\Rest\ListBuilder\ListRepresentation;
 use Sulu\Component\Rest\RestController;
+use Sulu\Component\Rest\RestHelperInterface;
 use Sulu\Component\Security\SecuredControllerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,10 +29,55 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Provides key-words for categories.
  *
- * @RouteResource("key-word")
+ * @RouteResource("key-words")
  */
 class KeyWordController extends RestController implements ClassResourceInterface, SecuredControllerInterface
 {
+    protected static $entityKey = 'key-words';
+
+    /**
+     * Returns field-descriptors for key-words
+     *
+     * @param int $categoryId
+     *
+     * @return Response
+     */
+    public function fieldsAction($categoryId)
+    {
+        return $this->handleView($this->view(array_values($this->getFieldDescriptors())));
+    }
+
+    public function cgetAction($categoryId, Request $request)
+    {
+        /** @var RestHelperInterface $restHelper */
+        $restHelper = $this->get('sulu_core.doctrine_rest_helper');
+
+        /** @var DoctrineListBuilderFactory $factory */
+        $factory = $this->get('sulu_core.doctrine_list_builder_factory');
+
+        $fieldDescriptor = $this->getFieldDescriptors();
+
+        $listBuilder = $factory->create($this->container->getParameter('sulu_category.entity.keyword'));
+        $restHelper->initializeListBuilder($listBuilder, $fieldDescriptor);
+
+        $listBuilder->where($fieldDescriptor['locale'], $request->get('locale'));
+        // TODO $listBuilder->where($fieldDescriptor['category'], $categoryId);
+
+        $listResponse = $listBuilder->execute();
+
+        $list = new ListRepresentation(
+            $listResponse,
+            self::$entityKey,
+            'cget_category_key-words',
+            array_merge(['categoryId' => $categoryId], $request->query->all()),
+            $listBuilder->getCurrentPage(),
+            $listBuilder->getLimit(),
+            $listBuilder->count()
+        );
+
+        return $this->handleView($this->view($list, 200));
+    }
+
     /**
      * Creates new key-word for given category.
      *
@@ -104,6 +153,29 @@ class KeyWordController extends RestController implements ClassResourceInterface
     }
 
     /**
+     * Delete given key-word from given category.
+     *
+     * @param int $categoryId
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function cdeleteAction($categoryId, Request $request)
+    {
+        $category = $this->getCategoryManager()->findById($categoryId);
+
+        $ids = array_filter(explode(',', $request->get('ids')));
+        foreach ($ids as $id) {
+            $keyWord = $this->getKeyWordRepository()->findById($id);
+            $this->getKeyWordManager()->delete($keyWord, $category);
+        }
+
+        $this->getEntityManager()->flush();
+
+        return $this->handleView($this->view());
+    }
+
+    /**
      * @return KeyWordManager
      */
     private function getKeyWordManager()
@@ -133,6 +205,18 @@ class KeyWordController extends RestController implements ClassResourceInterface
     private function getEntityManager()
     {
         return $this->get('doctrine.orm.entity_manager');
+    }
+
+    /**
+     * Returns field descriptor for key-word.
+     *
+     * @return FieldDescriptorInterface[]
+     */
+    public function getFieldDescriptors()
+    {
+        return $this->get('sulu_core.list_builder.field_descriptor_factory')->getFieldDescriptorForClass(
+            KeyWord::class
+        );
     }
 
     /**
