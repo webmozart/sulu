@@ -1,5 +1,5 @@
 /*
- * This file is part of the Sulu CMF.
+ * This file is part of Sulu.
  *
  * (c) MASSIVE ART WebServices GmbH
  *
@@ -7,14 +7,24 @@
  * with this source code in the file LICENSE.
  */
 
-define(function () {
+define(['text!./form.html'], function(form) {
 
     'use strict';
 
     var defaults = {
-            data: {},
-            instanceName: 'category',
-            newCategoryTitle: 'sulu.category.new-category'
+            options: {
+                data: {},
+                instanceName: 'category',
+                newCategoryTitle: 'sulu.category.new-category'
+            },
+            templates: {
+                form: form
+            },
+            translations: {
+                name: 'public.name',
+                key: 'public.key',
+                categoryKey: 'sulu.category.category-key'
+            }
         },
 
         constants = {
@@ -24,19 +34,17 @@ define(function () {
 
     return {
 
-        layout: {},
+        defaults: defaults,
 
-        templates: ['/admin/category/template/category/form/details'],
+        layout: {},
 
         /**
          * Initializes the collections list
          */
-        initialize: function () {
-            // extend defaults with options
-            this.options = this.sandbox.util.extend(true, {}, defaults, this.options);
+        initialize: function() {
             this.saved = true;
-
             this.locale = this.options.locale;
+
             this.prepareData(this.options.data);
 
             this.bindCustomEvents();
@@ -62,8 +70,8 @@ define(function () {
         /**
          * Binds custom related events
          */
-        bindCustomEvents: function () {
-            this.sandbox.on('sulu.header.back', function () {
+        bindCustomEvents: function() {
+            this.sandbox.on('sulu.header.back', function() {
                 this.sandbox.emit('sulu.category.categories.list');
             }.bind(this));
 
@@ -85,7 +93,7 @@ define(function () {
         /**
          * Renderes the details tab
          */
-        render: function () {
+        render: function() {
             var placeholder = this.sandbox.translate('sulu.category.category-name');
 
             if (!!this.fallbackData) {
@@ -94,10 +102,7 @@ define(function () {
 
             this.sandbox.dom.html(
                 this.$el,
-                this.renderTemplate(
-                    '/admin/category/template/category/form/details',
-                    {placeholder: placeholder}
-                )
+                this.templates.form({placeholder: placeholder, translations: this.translations})
             );
             this.sandbox.form.create(constants.detailsFromSelector);
             this.sandbox.form.setData(constants.detailsFromSelector, this.data).then(function() {
@@ -113,9 +118,9 @@ define(function () {
         /**
          * Binds DOM-Events for the details tab
          */
-        bindDomEvents: function () {
+        bindDomEvents: function() {
             // activate save-button on key input
-            this.sandbox.dom.on(constants.detailsFromSelector, 'change keyup', function () {
+            this.sandbox.dom.on(constants.detailsFromSelector, 'change keyup', function() {
                 if (this.saved === true) {
                     this.sandbox.emit('sulu.header.toolbar.item.enable', 'save', false);
                     this.saved = false;
@@ -126,7 +131,7 @@ define(function () {
         /**
          * Deletes the current category
          */
-        deleteCategory: function () {
+        deleteCategory: function() {
             if (!!this.data.id) {
                 this.sandbox.emit('sulu.category.categories.delete', [this.data.id], null, function() {
                     this.sandbox.sulu.unlockDeleteSuccessLabel();
@@ -138,7 +143,7 @@ define(function () {
         /**
          * Saves the details-tab
          */
-        saveDetails: function (action) {
+        saveDetails: function(action) {
             if (this.sandbox.form.validate(constants.detailsFromSelector)) {
                 var data = this.sandbox.form.getData(constants.detailsFromSelector);
                 this.data = this.sandbox.util.extend(true, {}, this.data, data);
@@ -154,7 +159,7 @@ define(function () {
          * @param {Object} result the saved category model or the error model
          * @param {Boolean} success to trigger success callback, false to trigger error callback
          */
-        savedCallback: function (toEdit, action, result, success) {
+        savedCallback: function(toEdit, action, result, success) {
             if (success === true) {
                 this.sandbox.emit('sulu.header.toolbar.item.disable', 'save', true);
                 this.saved = true;
