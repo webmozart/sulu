@@ -92,11 +92,6 @@ class Category implements AuditableInterface
     private $changer;
 
     /**
-     * @var Collection
-     */
-    private $keyWords;
-
-    /**
      * Constructor.
      */
     public function __construct()
@@ -104,7 +99,6 @@ class Category implements AuditableInterface
         $this->meta = new ArrayCollection();
         $this->translations = new ArrayCollection();
         $this->children = new ArrayCollection();
-        $this->keyWords = new ArrayCollection();
     }
 
     /**
@@ -306,6 +300,22 @@ class Category implements AuditableInterface
     }
 
     /**
+     * Get single meta by locale.
+     *
+     * @param $locale
+     *
+     * @return CategoryMeta
+     */
+    public function findMetaByLocale($locale)
+    {
+        return $this->meta->filter(
+            function (CategoryMeta $meta) use ($locale) {
+                return $meta->getLocale() === $locale;
+            }
+        )->first();
+    }
+
+    /**
      * Add translations.
      *
      * @param CategoryTranslation $translations
@@ -456,6 +466,20 @@ class Category implements AuditableInterface
     }
 
     /**
+     * Set changed.
+     *
+     * @param \DateTime $changed
+     *
+     * @return Category
+     */
+    public function setChanged(\DateTime $changed)
+    {
+        $this->changed = $changed;
+
+        return $this;
+    }
+
+    /**
      * Get changer.
      *
      * @return UserInterface
@@ -487,53 +511,5 @@ class Category implements AuditableInterface
     public function removeMetum(CategoryMeta $metum)
     {
         $this->meta->removeElement($metum);
-    }
-
-    /**
-     * Add keyWord
-     *
-     * @param KeyWord $keyWord
-     *
-     * @return Category
-     */
-    public function addKeyWord(KeyWord $keyWord)
-    {
-        $this->keyWords[] = $keyWord;
-
-        return $this;
-    }
-
-    /**
-     * Remove keyWord
-     *
-     * @param KeyWord $keyWord
-     */
-    public function removeKeyWord(KeyWord $keyWord)
-    {
-        $this->keyWords->removeElement($keyWord);
-    }
-
-    /**
-     * Get keyWords
-     *
-     * @return Collection
-     */
-    public function getKeyWords()
-    {
-        return $this->keyWords;
-    }
-
-    /**
-     * Returns true if given keyword already linked with the category.
-     *
-     * @return bool
-     */
-    public function hasKeyWord(KeyWord $keyWord)
-    {
-        return $this->getKeyWords()->exists(
-            function ($key, KeyWord $element) use ($keyWord) {
-                return $element->compareWith($keyWord);
-            }
-        );
     }
 }

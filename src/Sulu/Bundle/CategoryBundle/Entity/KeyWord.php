@@ -39,7 +39,7 @@ class KeyWord implements AuditableInterface
     /**
      * @var Collection
      */
-    private $categories;
+    private $categoryMeta;
 
     /**
      * @var UserInterface
@@ -66,7 +66,7 @@ class KeyWord implements AuditableInterface
      */
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
+        $this->categoryMeta = new ArrayCollection();
     }
 
     /**
@@ -128,15 +128,15 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Add category
+     * Add categoryMeta
      *
-     * @param Category $category
+     * @param CategoryMeta $categoryMeta
      *
      * @return KeyWord
      */
-    public function addCategory(Category $category)
+    public function addCategoryMeta(CategoryMeta $categoryMeta)
     {
-        $this->categories[] = $category;
+        $this->categoryMeta[] = $categoryMeta;
 
         return $this;
     }
@@ -144,11 +144,11 @@ class KeyWord implements AuditableInterface
     /**
      * Remove category
      *
-     * @param Category $category
+     * @param CategoryMeta $categoryMeta
      */
-    public function removeCategory(Category $category)
+    public function removeCategoryMeta(CategoryMeta $categoryMeta)
     {
-        $this->categories->removeElement($category);
+        $this->categoryMeta->removeElement($categoryMeta);
     }
 
     /**
@@ -156,9 +156,9 @@ class KeyWord implements AuditableInterface
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getCategories()
+    public function getCategoryMeta()
     {
-        return $this->categories;
+        return $this->categoryMeta;
     }
 
     /**
@@ -230,7 +230,7 @@ class KeyWord implements AuditableInterface
      */
     public function isReferencedMultiple()
     {
-        return $this->getCategories()->count() > 1;
+        return $this->getCategoryMeta()->count() > 1;
     }
 
     /**
@@ -238,7 +238,7 @@ class KeyWord implements AuditableInterface
      */
     public function isReferenced()
     {
-        return $this->getCategories()->count() > 0;
+        return $this->getCategoryMeta()->count() > 0;
     }
 
     /**

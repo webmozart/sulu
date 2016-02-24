@@ -11,6 +11,9 @@
 
 namespace Sulu\Bundle\CategoryBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
 /**
  * CategoryMeta.
  */
@@ -37,9 +40,19 @@ class CategoryMeta
     private $id;
 
     /**
-     * @var \Sulu\Bundle\CategoryBundle\Entity\Category
+     * @var Category
      */
     private $category;
+
+    /**
+     * @var Collection
+     */
+    private $keyWords;
+
+    public function __construct()
+    {
+        $this->keyWords = new ArrayCollection();
+    }
 
     /**
      * Set key.
@@ -126,11 +139,11 @@ class CategoryMeta
     /**
      * Set category.
      *
-     * @param \Sulu\Bundle\CategoryBundle\Entity\Category $category
+     * @param Category $category
      *
      * @return CategoryMeta
      */
-    public function setCategory(\Sulu\Bundle\CategoryBundle\Entity\Category $category)
+    public function setCategory(Category $category)
     {
         $this->category = $category;
 
@@ -140,10 +153,58 @@ class CategoryMeta
     /**
      * Get category.
      *
-     * @return \Sulu\Bundle\CategoryBundle\Entity\Category
+     * @return Category
      */
     public function getCategory()
     {
         return $this->category;
+    }
+
+    /**
+     * Add keyWord
+     *
+     * @param KeyWord $keyWord
+     *
+     * @return Category
+     */
+    public function addKeyWord(KeyWord $keyWord)
+    {
+        $this->keyWords[] = $keyWord;
+
+        return $this;
+    }
+
+    /**
+     * Remove keyWord
+     *
+     * @param KeyWord $keyWord
+     */
+    public function removeKeyWord(KeyWord $keyWord)
+    {
+        $this->keyWords->removeElement($keyWord);
+    }
+
+    /**
+     * Get keyWords
+     *
+     * @return Collection
+     */
+    public function getKeyWords()
+    {
+        return $this->keyWords;
+    }
+
+    /**
+     * Returns true if given keyword already linked with the category.
+     *
+     * @return bool
+     */
+    public function hasKeyWord(KeyWord $keyWord)
+    {
+        return $this->getKeyWords()->exists(
+            function ($key, KeyWord $element) use ($keyWord) {
+                return $element->compareWith($keyWord);
+            }
+        );
     }
 }

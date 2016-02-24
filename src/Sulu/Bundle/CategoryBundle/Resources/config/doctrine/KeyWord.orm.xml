@@ -19,14 +19,14 @@
         <field name="locale" column="locale" type="string" length="5" nullable="false"/>
         <field name="keyWord" column="key_word" type="string" length="255" nullable="false"/>
 
-        <many-to-many target-entity="Sulu\Bundle\CategoryBundle\Entity\Category" field="categories"
+        <many-to-many target-entity="Sulu\Bundle\CategoryBundle\Entity\CategoryMeta" field="categoryMeta"
                       inversed-by="keyWords">
-            <join-table name="ca_categories_key_words">
+            <join-table name="ca_categories_meta_key_words">
                 <join-columns>
                     <join-column name="key_word_id" referenced-column-name="id"/>
                 </join-columns>
                 <inverse-join-columns>
-                    <join-column name="category_id" referenced-column-name="id"/>
+                    <join-column name="category_meta_id" referenced-column-name="id"/>
                 </inverse-join-columns>
             </join-table>
         </many-to-many>

@@ -44,9 +44,6 @@
             <gedmo:tree-parent/>
         </many-to-one>
 
-        <many-to-many field="keyWords" mapped-by="categories"
-                      target-entity="Sulu\Bundle\CategoryBundle\Entity\KeyWord"/>
-
         <gedmo:tree type="nested"/>
     </entity>
 </doctrine-mapping>
