@@ -54,8 +54,9 @@ class KeyWordManager implements KeyWordManagerInterface
         $keyWord->addCategoryMeta($categoryMeta);
         $categoryMeta->addKeyWord($keyWord);
 
-        // FIXME category will no be updated if only meta is changed
+        // FIXME category and meta will no be updated if only keyword was changed
         $category->setChanged(new \DateTime());
+        $categoryMeta->setChanged(new \DateTime());
 
         return $keyWord;
     }
@@ -70,8 +71,9 @@ class KeyWordManager implements KeyWordManagerInterface
         $keyWord->removeCategoryMeta($categoryMeta);
         $categoryMeta->removeKeyWord($keyWord);
 
-        // FIXME category will no be updated if only meta is changed
+        // FIXME category and meta will no be updated if only keyword was changed
         $category->setChanged(new \DateTime());
+        $categoryMeta->setChanged(new \DateTime());
 
         if ($keyWord->isReferenced()) {
             return false;

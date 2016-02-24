@@ -56,6 +56,7 @@ class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
         $categoryMeta->hasKeyWord($exists ? $otherKeyWord->reveal() : $keyWord->reveal())->willReturn($has);
         $categoryMeta->addKeyWord($exists ? $otherKeyWord->reveal() : $keyWord->reveal())
             ->shouldBeCalledTimes($has ? 0 : 1);
+        $categoryMeta->setChanged(Argument::any())->shouldBeCalledTimes($has ? 0 : 1);
 
         $category = $this->prophesize(Category::class);
         $category->findMetaByLocale($locale)->willReturn($categoryMeta->reveal());
@@ -98,6 +99,7 @@ class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
         $categoryMeta = $this->prophesize(CategoryMeta::class);
         $categoryMeta->hasKeyWord($keyWord->reveal())->willReturn(true);
         $categoryMeta->removeKeyWord($keyWord->reveal())->shouldBeCalled();
+        $categoryMeta->setChanged(Argument::any())->shouldBeCalled();
 
         $category = $this->prophesize(Category::class);
         $category->findMetaByLocale($locale)->willReturn($categoryMeta->reveal());
