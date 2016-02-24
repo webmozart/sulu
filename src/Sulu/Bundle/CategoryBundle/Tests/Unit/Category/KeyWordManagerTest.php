@@ -15,7 +15,7 @@ use Prophecy\Argument;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordManager;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordRepositoryInterface;
 use Sulu\Bundle\CategoryBundle\Entity\Category;
-use Sulu\Bundle\CategoryBundle\Entity\CategoryMeta;
+use Sulu\Bundle\CategoryBundle\Entity\CategoryTranslation;
 use Sulu\Bundle\CategoryBundle\Entity\KeyWord;
 
 class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
@@ -52,20 +52,20 @@ class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
         $keyWord->getLocale()->willReturn($locale);
         $keyWord->getId()->shouldNotBeCalled();
 
-        $categoryMeta = $this->prophesize(CategoryMeta::class);
-        $categoryMeta->hasKeyWord($exists ? $otherKeyWord->reveal() : $keyWord->reveal())->willReturn($has);
-        $categoryMeta->addKeyWord($exists ? $otherKeyWord->reveal() : $keyWord->reveal())
+        $categoryTranslation = $this->prophesize(CategoryTranslation::class);
+        $categoryTranslation->hasKeyWord($exists ? $otherKeyWord->reveal() : $keyWord->reveal())->willReturn($has);
+        $categoryTranslation->addKeyWord($exists ? $otherKeyWord->reveal() : $keyWord->reveal())
             ->shouldBeCalledTimes($has ? 0 : 1);
-        $categoryMeta->setChanged(Argument::any())->shouldBeCalledTimes($has ? 0 : 1);
+        $categoryTranslation->setChanged(Argument::any())->shouldBeCalledTimes($has ? 0 : 1);
 
         $category = $this->prophesize(Category::class);
-        $category->findMetaByLocale($locale)->willReturn($categoryMeta->reveal());
+        $category->findTranslationByLocale($locale)->willReturn($categoryTranslation->reveal());
         $category->setChanged(Argument::any())->shouldBeCalledTimes($has ? 0 : 1);
 
         if ($exists) {
-            $otherKeyWord->addCategoryMeta($categoryMeta->reveal())->shouldBeCalledTimes($has ? 0 : 1);
+            $otherKeyWord->addCategoryTranslation($categoryTranslation->reveal())->shouldBeCalledTimes($has ? 0 : 1);
         } else {
-            $keyWord->addCategoryMeta($categoryMeta->reveal())->shouldBeCalledTimes($has ? 0 : 1);
+            $keyWord->addCategoryTranslation($categoryTranslation->reveal())->shouldBeCalledTimes($has ? 0 : 1);
         }
 
         $manager = new KeyWordManager($repository->reveal(), $entityManager->reveal());
@@ -96,16 +96,16 @@ class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
         $keyWord->getId()->shouldNotBeCalled();
         $keyWord->isReferenced()->willReturn($multipleReferenced);
 
-        $categoryMeta = $this->prophesize(CategoryMeta::class);
-        $categoryMeta->hasKeyWord($keyWord->reveal())->willReturn(true);
-        $categoryMeta->removeKeyWord($keyWord->reveal())->shouldBeCalled();
-        $categoryMeta->setChanged(Argument::any())->shouldBeCalled();
+        $categoryTranslation = $this->prophesize(CategoryTranslation::class);
+        $categoryTranslation->hasKeyWord($keyWord->reveal())->willReturn(true);
+        $categoryTranslation->removeKeyWord($keyWord->reveal())->shouldBeCalled();
+        $categoryTranslation->setChanged(Argument::any())->shouldBeCalled();
 
         $category = $this->prophesize(Category::class);
-        $category->findMetaByLocale($locale)->willReturn($categoryMeta->reveal());
+        $category->findTranslationByLocale($locale)->willReturn($categoryTranslation->reveal());
         $category->setChanged(Argument::any())->shouldBeCalled();
 
-        $keyWord->removeCategoryMeta($categoryMeta->reveal())->shouldBeCalled();
+        $keyWord->removeCategoryTranslation($categoryTranslation->reveal())->shouldBeCalled();
 
         if (!$multipleReferenced) {
             $entityManager->remove($keyWord->reveal())->shouldBeCalled();

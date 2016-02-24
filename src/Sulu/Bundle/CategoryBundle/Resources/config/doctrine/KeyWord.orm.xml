@@ -19,9 +19,9 @@
         <field name="locale" column="locale" type="string" length="5" nullable="false"/>
         <field name="keyWord" column="key_word" type="string" length="255" nullable="false"/>
 
-        <many-to-many target-entity="Sulu\Bundle\CategoryBundle\Entity\CategoryMeta" field="categoryMeta"
+        <many-to-many target-entity="Sulu\Bundle\CategoryBundle\Entity\CategoryTranslation" field="categoryTranslations"
                       inversed-by="keyWords">
-            <join-table name="ca_categories_meta_key_words">
+            <join-table name="ca_category_translations_key_words">
                 <join-columns>
                     <join-column name="key_word_id" referenced-column-name="id"/>
                 </join-columns>

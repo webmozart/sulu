@@ -13,6 +13,7 @@ namespace Functional\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Sulu\Bundle\CategoryBundle\Entity\Category;
 use Sulu\Bundle\CategoryBundle\Entity\CategoryMeta;
+use Sulu\Bundle\CategoryBundle\Entity\CategoryTranslation;
 use Sulu\Bundle\CategoryBundle\Entity\KeyWord;
 use Sulu\Bundle\TestBundle\Testing\SuluTestCase;
 
@@ -47,27 +48,25 @@ class KeyWordControllerTest extends SuluTestCase
         $this->category1 = new Category();
         $this->category1->setKey('1');
         $this->category1->setDefaultLocale('de');
-        $categoryMeta1 = new CategoryMeta();
-        $categoryMeta1->setCategory($this->category1);
-        $categoryMeta1->setValue('test-1');
-        $categoryMeta1->setKey('1');
-        $categoryMeta1->setLocale('de');
-        $this->category1->addMeta($categoryMeta1);
+        $categoryTranslation1 = new CategoryTranslation();
+        $categoryTranslation1->setCategory($this->category1);
+        $categoryTranslation1->setTranslation('test-1');
+        $categoryTranslation1->setLocale('de');
+        $this->category1->addTranslation($categoryTranslation1);
 
         $this->category2 = new Category();
         $this->category2->setKey('2');
         $this->category2->setDefaultLocale('de');
-        $categoryMeta2 = new CategoryMeta();
-        $categoryMeta2->setCategory($this->category2);
-        $categoryMeta2->setValue('test-2');
-        $categoryMeta2->setKey('2');
-        $categoryMeta2->setLocale('de');
-        $this->category2->addMeta($categoryMeta2);
+        $categoryTranslation2 = new CategoryTranslation();
+        $categoryTranslation2->setCategory($this->category2);
+        $categoryTranslation2->setTranslation('test-2');
+        $categoryTranslation2->setLocale('de');
+        $this->category2->addTranslation($categoryTranslation2);
 
         $this->entityManager->persist($this->category1);
         $this->entityManager->persist($this->category2);
-        $this->entityManager->persist($categoryMeta1);
-        $this->entityManager->persist($categoryMeta2);
+        $this->entityManager->persist($categoryTranslation1);
+        $this->entityManager->persist($categoryTranslation2);
         $this->entityManager->flush();
     }
 

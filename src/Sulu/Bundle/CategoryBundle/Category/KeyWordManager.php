@@ -44,14 +44,14 @@ class KeyWordManager implements KeyWordManagerInterface
             $keyWord = $synonym;
         }
 
-        $categoryMeta = $category->findMetaByLocale($keyWord->getLocale());
+        $categoryMeta = $category->findTranslationByLocale($keyWord->getLocale());
 
         // if key-word already exists in category
         if ($categoryMeta->hasKeyWord($keyWord)) {
             return $keyWord;
         }
 
-        $keyWord->addCategoryMeta($categoryMeta);
+        $keyWord->addCategoryTranslation($categoryMeta);
         $categoryMeta->addKeyWord($keyWord);
 
         // FIXME category and meta will no be updated if only keyword was changed
@@ -66,9 +66,9 @@ class KeyWordManager implements KeyWordManagerInterface
      */
     public function delete(KeyWord $keyWord, Category $category)
     {
-        $categoryMeta = $category->findMetaByLocale($keyWord->getLocale());
+        $categoryMeta = $category->findTranslationByLocale($keyWord->getLocale());
 
-        $keyWord->removeCategoryMeta($categoryMeta);
+        $keyWord->removeCategoryTranslation($categoryMeta);
         $categoryMeta->removeKeyWord($keyWord);
 
         // FIXME category and meta will no be updated if only keyword was changed

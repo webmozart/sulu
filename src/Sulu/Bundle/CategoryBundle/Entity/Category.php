@@ -300,22 +300,6 @@ class Category implements AuditableInterface
     }
 
     /**
-     * Get single meta by locale.
-     *
-     * @param $locale
-     *
-     * @return CategoryMeta
-     */
-    public function findMetaByLocale($locale)
-    {
-        return $this->meta->filter(
-            function (CategoryMeta $meta) use ($locale) {
-                return $meta->getLocale() === $locale;
-            }
-        )->first();
-    }
-
-    /**
      * Add translations.
      *
      * @param CategoryTranslation $translations
@@ -347,6 +331,22 @@ class Category implements AuditableInterface
     public function getTranslations()
     {
         return $this->translations;
+    }
+
+    /**
+     * Get single meta by locale.
+     *
+     * @param $locale
+     *
+     * @return CategoryTranslation
+     */
+    public function findTranslationByLocale($locale)
+    {
+        return $this->translations->filter(
+            function (CategoryTranslation $translation) use ($locale) {
+                return $translation->getLocale() === $locale;
+            }
+        )->first();
     }
 
     /**

@@ -39,7 +39,7 @@ class KeyWord implements AuditableInterface
     /**
      * @var Collection
      */
-    private $categoryMeta;
+    private $categoryTranslations;
 
     /**
      * @var UserInterface
@@ -66,7 +66,7 @@ class KeyWord implements AuditableInterface
      */
     public function __construct()
     {
-        $this->categoryMeta = new ArrayCollection();
+        $this->categoryTranslations = new ArrayCollection();
     }
 
     /**
@@ -128,27 +128,27 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Add categoryMeta
+     * Add category-translation
      *
-     * @param CategoryMeta $categoryMeta
+     * @param CategoryTranslation $categoryTranslation
      *
      * @return KeyWord
      */
-    public function addCategoryMeta(CategoryMeta $categoryMeta)
+    public function addCategoryTranslation(CategoryTranslation $categoryTranslation)
     {
-        $this->categoryMeta[] = $categoryMeta;
+        $this->categoryTranslations[] = $categoryTranslation;
 
         return $this;
     }
 
     /**
-     * Remove category
+     * Remove category-translation
      *
-     * @param CategoryMeta $categoryMeta
+     * @param CategoryTranslation $categoryTranslation
      */
-    public function removeCategoryMeta(CategoryMeta $categoryMeta)
+    public function removeCategoryTranslation(CategoryTranslation $categoryTranslation)
     {
-        $this->categoryMeta->removeElement($categoryMeta);
+        $this->categoryTranslations->removeElement($categoryTranslation);
     }
 
     /**
@@ -156,9 +156,9 @@ class KeyWord implements AuditableInterface
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getCategoryMeta()
+    public function getCategoryTranslations()
     {
-        return $this->categoryMeta;
+        return $this->categoryTranslations;
     }
 
     /**
@@ -230,7 +230,7 @@ class KeyWord implements AuditableInterface
      */
     public function isReferencedMultiple()
     {
-        return $this->getCategoryMeta()->count() > 1;
+        return $this->getCategoryTranslations()->count() > 1;
     }
 
     /**
@@ -238,7 +238,7 @@ class KeyWord implements AuditableInterface
      */
     public function isReferenced()
     {
-        return $this->getCategoryMeta()->count() > 0;
+        return $this->getCategoryTranslations()->count() > 0;
     }
 
     /**
