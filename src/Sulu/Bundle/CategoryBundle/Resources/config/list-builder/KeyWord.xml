@@ -1,17 +1,18 @@
 <class xmlns="http://schemas.sulu.io/class/general"
+       xmlns:list="http://schemas.sulu.io/class/list"
        xmlns:orm="http://schemas.sulu.io/class/doctrine">
     <properties>
-        <property name="id" translation="public.id" disabled="true" type="integer">
+        <property name="id" list:translation="public.id" display="no" list:type="integer">
             <orm:field-name>id</orm:field-name>
             <orm:entity-name>%sulu_category.entity.keyword%</orm:entity-name>
         </property>
 
-        <property name="keyWord" translation="sulu.category.key-word" default="true" editable="true">
+        <property name="keyWord" list:translation="sulu.category.key-word" display="always" list:editable="true">
             <orm:field-name>keyWord</orm:field-name>
             <orm:entity-name>%sulu_category.entity.keyword%</orm:entity-name>
         </property>
 
-        <property name="locale" disabled="true" default="true">
+        <property name="locale" display="never">
             <orm:field-name>locale</orm:field-name>
             <orm:entity-name>%sulu_category.entity.keyword%</orm:entity-name>
         </property>

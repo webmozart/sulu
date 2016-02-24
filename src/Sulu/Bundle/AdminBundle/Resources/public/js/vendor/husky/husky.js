@@ -31577,7 +31577,7 @@ define('husky_components/datagrid/decorators/table-view',[],function() {
             if (hasChanged === true) {
                 // pass data to datagrid to save it
                 this.datagrid.saveGrid.call(this.datagrid,
-                    record, this.datagrid.getSaveUrl.call(this.datagrid),
+                    record, this.datagrid.getUrlWithoutParams.call(this.datagrid),
                     successCallback, errorCallback, this.options.addRowTop);
             } else {
                 typeof successCallback === 'function' && successCallback(record);
@@ -34543,19 +34543,6 @@ define('husky_components/datagrid/decorators/infinite-scroll-pagination',[],func
             },
 
             /**
-             * Returns url for save
-             */
-            getSaveUrl: function() {
-                var url = this.getUrlWithoutParams();
-
-                for (var key in this.options.saveParams) {
-                    url = setGetParameter.call(this, url, key, this.options.saveParams[key]);
-                }
-
-                return url;
-            },
-
-            /**
              * Returns the index of a data record for a given id
              * @param id {Number|String} the id to search for
              * @returns {Number|String} the index of the found record
@@ -35199,6 +35186,10 @@ define('husky_components/datagrid/decorators/infinite-scroll-pagination',[],func
                     url = url + '/' + data.id;
                 }
 
+                for (var key in this.options.saveParams) {
+                    url = setGetParameter.call(this, url, key, this.options.saveParams[key]);
+                }
+
                 this.sandbox.emit(DATA_CHANGED.call(this));
 
                 this.sandbox.util.save(url, method, data)
@@ -35219,7 +35210,7 @@ define('husky_components/datagrid/decorators/infinite-scroll-pagination',[],func
                         }
                     }.bind(this))
                     .fail(function(jqXHR, textStatus, error) {
-                        this.sandbox.emit(DATA_SAVE_FAILED.call(this), jqXHR, textStatus, error);
+                        this.sandbox.emit(DATA_SAVE_FAILED.call(this), jqXHR, textStatus, error, data);
 
                         if (typeof fail === 'function') {
                             fail(jqXHR, textStatus, error);

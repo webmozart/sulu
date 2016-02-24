@@ -19,7 +19,7 @@ define(['text!./form.html'], function(form) {
             },
             templates: {
                 form: form,
-                keyWordsUrl: '/admin/api/categories/<%= category %>/key-words<%= postfix %>?locale=<%= locale %><% if (typeof ids !== "undefined") { %>&ids=<%= ids.join(",") %><% } %>'
+                keyWordsUrl: '/admin/api/categories/<%= category %>/key-words<% if (typeof id !== "undefined") { %>/<%= id %><% } %><% if (typeof postfix !== "undefined") { %><%= postfix %><% } %>?locale=<%= locale %><% if (typeof ids !== "undefined") { %>&ids=<%= ids.join(",") %><% } %><% if (typeof force !== "undefined") { %>&force=<%= force %><% } %>'
             },
             translations: {
                 name: 'public.name',
@@ -27,7 +27,10 @@ define(['text!./form.html'], function(form) {
                 categoryKey: 'sulu.category.category-key',
                 keyWords: 'sulu.category.key-words',
                 keyWordDeleteLabel: 'labels.success.delete-desc',
-                keyWordDeleteMessage: 'labels.success.delete-desc'
+                keyWordDeleteMessage: 'labels.success.delete-desc',
+                conflictTitle: 'sulu.category.keyword_conflict.title',
+                conflictOverwrite: 'sulu.category.keyword_conflict.overwrite',
+                conflictDetach: 'sulu.category.keyword_conflict.detach'
             }
         },
 
@@ -147,7 +150,7 @@ define(['text!./form.html'], function(form) {
                 },
                 {
                     el: this.$find('#key-words-list'),
-                    url: this.templates.keyWordsUrl({category: this.options.data.id, postfix: '', locale: this.locale}),
+                    url: this.templates.keyWordsUrl({category: this.options.data.id, locale: this.locale}),
                     resultKey: 'key-words',
                     searchFields: ['keyWord'],
                     saveParams: {locale: this.locale},
@@ -168,6 +171,87 @@ define(['text!./form.html'], function(form) {
                     keyWord: '',
                     locale: this.locale
                 });
+            }.bind(this));
+
+            // resolve conflict
+            this.sandbox.on('husky.datagrid.data.save.failed', function(jqXHR, textStatus, error, data) {
+                if (jqXHR.status === 409) {
+                    this.handleConflict(jqXHR.responseJSON.id, data.keyWord);
+                }
+            }.bind(this));
+        },
+
+        /**
+         * Handle conflicting response.
+         *
+         * @param {Integer} keyWordId
+         * @param {String} keyWord
+         */
+        handleConflict: function(keyWordId, keyWord) {
+            var $container = this.sandbox.dom.createElement('<div/>');
+            this.$el.append($container);
+
+            this.sandbox.start([
+                {
+                    name: 'overlay@husky',
+                    options: {
+                        el: $container,
+                        cssClass: 'alert',
+                        removeOnClose: true,
+                        openOnStart: true,
+                        slides: [
+                            {
+                                title: this.translations.conflictTitle,
+                                message: this.translations.conflictMessage,
+                                okCallback: function() {
+                                    this.conflict('overwrite', keyWordId, keyWord);
+                                }.bind(this),
+                                buttons: [
+                                    {
+                                        text: this.translations.conflictOverwrite,
+                                        type: 'ok',
+                                        align: 'right'
+                                    },
+                                    {
+                                        text: this.translations.conflictDetach,
+                                        align: 'center',
+                                        callback: function() {
+                                            this.conflict('detach', keyWordId, keyWord);
+                                            // TODO close
+                                        }.bind(this)
+                                    },
+                                    {
+                                        type: 'cancel',
+                                        align: 'left'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]);
+        },
+
+        conflict: function(type, keyWordId, keyWord) {
+            var data = {
+                id: keyWordId,
+                keyWord: keyWord
+            };
+
+            this.sandbox.util.save(
+                this.templates.keyWordsUrl(
+                    {
+                        category: this.options.data.id,
+                        id: keyWordId,
+                        locale: this.locale,
+                        force: type
+                    }
+                ),
+                'PUT',
+                data
+            ).then(function() {
+                // TODO for detach remove old record add new one
+                this.sandbox.emit('husky.datagrid.records.change', data);
             }.bind(this));
         },
 
@@ -213,7 +297,6 @@ define(['text!./form.html'], function(form) {
                         this.sandbox.util.save(
                             this.templates.keyWordsUrl({
                                 category: this.options.data.id,
-                                postfix: '',
                                 locale: this.locale,
                                 ids: ids
                             }),
