@@ -490,7 +490,7 @@ class Category implements AuditableInterface
     }
 
     /**
-     * Add metum
+     * Add metum.
      *
      * @param CategoryMeta $metum
      *
@@ -504,7 +504,7 @@ class Category implements AuditableInterface
     }
 
     /**
-     * Remove metum
+     * Remove metum.
      *
      * @param CategoryMeta $metum
      */

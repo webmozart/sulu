@@ -12,7 +12,6 @@ namespace Functional\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Sulu\Bundle\CategoryBundle\Entity\Category;
-use Sulu\Bundle\CategoryBundle\Entity\CategoryMeta;
 use Sulu\Bundle\CategoryBundle\Entity\CategoryTranslation;
 use Sulu\Bundle\CategoryBundle\Entity\KeyWord;
 use Sulu\Bundle\TestBundle\Testing\SuluTestCase;

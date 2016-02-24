@@ -36,7 +36,7 @@ class KeyWordController extends RestController implements ClassResourceInterface
     protected static $entityKey = 'key-words';
 
     /**
-     * Returns field-descriptors for key-words
+     * Returns field-descriptors for key-words.
      *
      * @param int $categoryId
      *

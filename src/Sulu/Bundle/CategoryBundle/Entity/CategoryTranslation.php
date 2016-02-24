@@ -154,7 +154,7 @@ class CategoryTranslation implements AuditableInterface
     }
 
     /**
-     * Add keyWord
+     * Add keyWord.
      *
      * @param KeyWord $keyWord
      *
@@ -168,7 +168,7 @@ class CategoryTranslation implements AuditableInterface
     }
 
     /**
-     * Remove keyWord
+     * Remove keyWord.
      *
      * @param KeyWord $keyWord
      */
@@ -178,7 +178,7 @@ class CategoryTranslation implements AuditableInterface
     }
 
     /**
-     * Get keyWords
+     * Get keyWords.
      *
      * @return Collection
      */

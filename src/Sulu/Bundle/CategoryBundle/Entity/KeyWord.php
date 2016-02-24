@@ -32,7 +32,7 @@ class KeyWord implements AuditableInterface
     private $keyWord;
 
     /**
-     * @var integer
+     * @var int
      */
     private $id;
 
@@ -62,7 +62,7 @@ class KeyWord implements AuditableInterface
     private $changed;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
@@ -70,7 +70,7 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Set locale
+     * Set locale.
      *
      * @param string $locale
      *
@@ -84,7 +84,7 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Get locale
+     * Get locale.
      *
      * @return string
      */
@@ -94,7 +94,7 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Set keyWord
+     * Set keyWord.
      *
      * @param string $keyWord
      *
@@ -108,7 +108,7 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Get keyWord
+     * Get keyWord.
      *
      * @return string
      */
@@ -118,9 +118,9 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -128,7 +128,7 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Add category-translation
+     * Add category-translation.
      *
      * @param CategoryTranslation $categoryTranslation
      *
@@ -142,7 +142,7 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Remove category-translation
+     * Remove category-translation.
      *
      * @param CategoryTranslation $categoryTranslation
      */
@@ -152,7 +152,7 @@ class KeyWord implements AuditableInterface
     }
 
     /**
-     * Get categories
+     * Get categories.
      *
      * @return \Doctrine\Common\Collections\Collection
      */

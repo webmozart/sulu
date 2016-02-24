@@ -11,9 +11,6 @@
 
 namespace Sulu\Bundle\CategoryBundle\Entity;
 
-use Sulu\Component\Persistence\Model\AuditableInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-
 /**
  * CategoryMeta.
  */

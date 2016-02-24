@@ -25,6 +25,7 @@ class KeyWordRepository extends EntityRepository implements KeyWordRepositoryInt
     {
         return $this->find($id);
     }
+
     /**
      * {@inheritdoc}
      */
