@@ -20,7 +20,6 @@ use Sulu\Bundle\CategoryBundle\Category\KeyWordManager;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordRepositoryInterface;
 use Sulu\Bundle\CategoryBundle\Entity\Category;
 use Sulu\Bundle\CategoryBundle\Entity\KeyWord;
-use Sulu\Component\Rest\Exception\RestException;
 use Sulu\Component\Rest\ListBuilder\Doctrine\DoctrineListBuilderFactory;
 use Sulu\Component\Rest\ListBuilder\FieldDescriptorInterface;
 use Sulu\Component\Rest\ListBuilder\ListRepresentation;
@@ -137,39 +136,34 @@ class KeyWordController extends RestController implements ClassResourceInterface
      */
     public function putAction($categoryId, $keyWordId, Request $request)
     {
-        try {
-            $keyWord = $this->getKeyWordRepository()->findById($keyWordId);
+        $keyWord = $this->getKeyWordRepository()->findById($keyWordId);
 
-            if (!$keyWord) {
-                return $this->handleView($this->view(null, 404));
-            }
-
-            // overwrite existing keyword if force is present
-            if (null === ($force = $request->get('force'))
-                && !in_array($force, [self::FORCE_OVERWRITE, self::FORCE_DETACH])
-                && $keyWord->isReferencedMultiple()
-            ) {
-                // return conflict if key-word is used by other categories
-                throw new KeyWordIsMultipleReferencedException($keyWord);
-            }
-
-            // TODO handle force = overwrite and force = detach
-
-            $category = $this->getCategoryManager()->findById($categoryId);
-
-            if ($force === self::FORCE_DETACH) {
-                $keyWord = $this->handleDetach($category, $keyWord, $request->get('keyWord'));
-            } else {
-                $this->handleOverwrite($category, $keyWord, $request->get('keyWord'));
-            }
-
-            $this->getEntityManager()->flush();
-
-            return $this->handleView($this->view($keyWord));
-        } catch (RestException $ex) {
-            // FIXME replace with fos-rest-bundle exception handling
-            return $this->handleView($this->view($ex->toArray(), 409));
+        if (!$keyWord) {
+            return $this->handleView($this->view(null, 404));
         }
+
+        // overwrite existing keyword if force is present
+        if (null === ($force = $request->get('force'))
+            && !in_array($force, [self::FORCE_OVERWRITE, self::FORCE_DETACH])
+            && $keyWord->isReferencedMultiple()
+        ) {
+            // return conflict if key-word is used by other categories
+            throw new KeyWordIsMultipleReferencedException($keyWord);
+        }
+
+        // TODO handle force = overwrite and force = detach
+
+        $category = $this->getCategoryManager()->findById($categoryId);
+
+        if ($force === self::FORCE_DETACH) {
+            $keyWord = $this->handleDetach($category, $keyWord, $request->get('keyWord'));
+        } else {
+            $this->handleOverwrite($category, $keyWord, $request->get('keyWord'));
+        }
+
+        $this->getEntityManager()->flush();
+
+        return $this->handleView($this->view($keyWord));
     }
 
     /**
