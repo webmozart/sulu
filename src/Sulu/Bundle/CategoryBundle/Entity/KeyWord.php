@@ -248,6 +248,7 @@ class KeyWord implements AuditableInterface
      */
     public function compareWith(KeyWord $keyWord)
     {
-        return $keyWord->getKeyWord() === $this->getKeyWord() && $keyWord->getLocale() === $this->getLocale();
+        return $keyWord->getKeyWord() === $this->getKeyWord()
+            && $keyWord->getLocale() === $this->getLocale();
     }
 }

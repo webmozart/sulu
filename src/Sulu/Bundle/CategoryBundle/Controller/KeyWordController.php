@@ -14,10 +14,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\RouteResource;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Sulu\Bundle\CategoryBundle\Category\CategoryManagerInterface;
+use Sulu\Bundle\CategoryBundle\Category\Exception\KeyWordIsMultipleReferencedException;
+use Sulu\Bundle\CategoryBundle\Category\Exception\KeyWordNotUniqueException;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordManager;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordRepositoryInterface;
 use Sulu\Bundle\CategoryBundle\Entity\Category;
 use Sulu\Bundle\CategoryBundle\Entity\KeyWord;
+use Sulu\Component\Rest\Exception\RestException;
 use Sulu\Component\Rest\ListBuilder\Doctrine\DoctrineListBuilderFactory;
 use Sulu\Component\Rest\ListBuilder\FieldDescriptorInterface;
 use Sulu\Component\Rest\ListBuilder\ListRepresentation;
@@ -34,6 +37,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class KeyWordController extends RestController implements ClassResourceInterface, SecuredControllerInterface
 {
+    const FORCE_OVERWRITE = 'overwrite';
+    const FORCE_DETACH = 'detach';
+
     protected static $entityKey = 'key-words';
 
     /**
@@ -77,6 +83,9 @@ class KeyWordController extends RestController implements ClassResourceInterface
             $fieldDescriptor['categoryTranslationIds'],
             $category->findTranslationByLocale($request->get('locale'))
         );
+
+        // should eliminate duplicates
+        $listBuilder->distinct(true);
 
         $listResponse = $listBuilder->execute();
 
@@ -128,24 +137,83 @@ class KeyWordController extends RestController implements ClassResourceInterface
      */
     public function putAction($categoryId, $keyWordId, Request $request)
     {
-        $keyWord = $this->getKeyWordRepository()->findById($keyWordId);
+        try {
+            $keyWord = $this->getKeyWordRepository()->findById($keyWordId);
 
-        // overwrite existing keyword if force is present
-        if ($request->get('force') === null && $keyWord->isReferencedMultiple()) {
-            // return conflict if key-word is used by other categories
-            return $this->handleView($this->view($keyWord, 409));
+            if (!$keyWord) {
+                return $this->handleView($this->view(null, 404));
+            }
+
+            // overwrite existing keyword if force is present
+            if (null === ($force = $request->get('force'))
+                && !in_array($force, [self::FORCE_OVERWRITE, self::FORCE_DETACH])
+                && $keyWord->isReferencedMultiple()
+            ) {
+                // return conflict if key-word is used by other categories
+                throw new KeyWordIsMultipleReferencedException($keyWord);
+            }
+
+            // TODO handle force = overwrite and force = detach
+
+            $category = $this->getCategoryManager()->findById($categoryId);
+
+            if ($force === self::FORCE_DETACH) {
+                $keyWord = $this->handleDetach($category, $keyWord, $request->get('keyWord'));
+            } else {
+                $this->handleOverwrite($category, $keyWord, $request->get('keyWord'));
+            }
+
+            $this->getEntityManager()->flush();
+
+            return $this->handleView($this->view($keyWord));
+        } catch (RestException $ex) {
+            // FIXME replace with fos-rest-bundle exception handling
+            return $this->handleView($this->view($ex->toArray(), 409));
         }
+    }
 
-        // TODO handle force = overwrite and force = detach
+    /**
+     * Overwrites given key-word entity.
+     *
+     * @param Category $category
+     * @param KeyWord $entity
+     * @param string $keyWord
+     *
+     * @return KeyWord
+     */
+    private function handleOverwrite(Category $category, KeyWord $entity, $keyWord)
+    {
+        $manager = $this->getKeyWordManager();
+        $entity->setKeyWord($keyWord);
 
-        $category = $this->getCategoryManager()->findById($categoryId);
-        $keyWord->setKeyWord($request->get('keyWord'));
+        return $manager->save($entity, $category);
+    }
 
-        $keyWord = $this->getKeyWordManager()->save($keyWord, $category);
+    /**
+     * Detach given and create new key-word entity.
+     *
+     * @param Category $category
+     * @param KeyWord $entity
+     * @param string $keyWord
+     *
+     * @return KeyWord
+     */
+    private function handleDetach(Category $category, KeyWord $entity, $keyWord)
+    {
+        // delete old key-word from category
+        $manager = $this->getKeyWordManager();
+        $manager->delete($entity, $category);
 
-        $this->getEntityManager()->flush();
+        // create new key-word
+        $newEntity = $this->getKeyWordRepository()->createNew();
+        $newEntity->setKeyWord($keyWord);
+        $newEntity->setLocale($entity->getLocale());
 
-        return $this->handleView($this->view($keyWord));
+        // add new key-word to category
+        $newEntity = $this->getKeyWordManager()->save($newEntity, $category);
+        $this->getEntityManager()->persist($newEntity);
+
+        return $newEntity;
     }
 
     /**

@@ -176,7 +176,7 @@ define(['text!./form.html'], function(form) {
             // resolve conflict
             this.sandbox.on('husky.datagrid.data.save.failed', function(jqXHR, textStatus, error, data) {
                 if (jqXHR.status === 409) {
-                    this.handleConflict(jqXHR.responseJSON.id, data.keyWord);
+                    this.handleConflict(data.id, data.keyWord);
                 }
             }.bind(this));
         },
@@ -272,7 +272,7 @@ define(['text!./form.html'], function(form) {
                     this.sandbox.emit('sulu.header.toolbar.item.enable', 'save', false);
                     this.saved = false;
                 }
-            }.bind(this));
+            }.bind(this), 'input:not(.editable-input)');
         },
 
         /**

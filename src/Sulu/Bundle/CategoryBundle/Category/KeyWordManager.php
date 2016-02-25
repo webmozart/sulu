@@ -41,6 +41,13 @@ class KeyWordManager implements KeyWordManagerInterface
     public function save(KeyWord $keyWord, Category $category)
     {
         if (null !== $synonym = $this->findSynonym($keyWord)) {
+            // reset entity and remove it from category
+            if ($this->entityManager->contains($keyWord)) {
+                $this->entityManager->refresh($keyWord);
+            }
+            $this->delete($keyWord, $category);
+
+            // link this synonym to the category
             $keyWord = $synonym;
         }
 
