@@ -24,13 +24,18 @@ define(['text!./form.html'], function(form) {
             translations: {
                 name: 'public.name',
                 key: 'public.key',
+                yes: 'public.yes',
+                no: 'public.no',
                 categoryKey: 'sulu.category.category-key',
                 keyWords: 'sulu.category.key-words',
                 keyWordDeleteLabel: 'labels.success.delete-desc',
                 keyWordDeleteMessage: 'labels.success.delete-desc',
                 conflictTitle: 'sulu.category.keyword_conflict.title',
+                conflictMessage: 'sulu.category.keyword_conflict.message',
                 conflictOverwrite: 'sulu.category.keyword_conflict.overwrite',
-                conflictDetach: 'sulu.category.keyword_conflict.detach'
+                conflictDetach: 'sulu.category.keyword_conflict.detach',
+                mergeTitle: 'sulu.category.keyword_merge.title',
+                mergeMessage: 'sulu.category.keyword_merge.message'
             }
         },
 
@@ -175,10 +180,16 @@ define(['text!./form.html'], function(form) {
 
             // resolve conflict
             this.sandbox.on('husky.datagrid.data.save.failed', function(jqXHR, textStatus, error, data) {
-                if (jqXHR.status === 409) {
-                    this.handleConflict(data.id, data.keyWord);
-                }
+                this.handleFail(jqXHR, data);
             }.bind(this));
+        },
+
+        handleFail: function(jqXHR, data) {
+            if (jqXHR.status === 409 && jqXHR.responseJSON.code === 2002) {
+                this.handleConflict(data.id, data.keyWord);
+            } else if (jqXHR.status === 409 && jqXHR.responseJSON.code === 2001) {
+                this.resolveConflict('merge', data.id, data.keyWord);
+            }
         },
 
         /**
@@ -205,8 +216,11 @@ define(['text!./form.html'], function(form) {
                                 title: this.translations.conflictTitle,
                                 message: this.translations.conflictMessage,
                                 okCallback: function() {
-                                    this.conflict('overwrite', keyWordId, keyWord);
+                                    this.resolveConflict('overwrite', keyWordId, keyWord);
                                 }.bind(this),
+                                cancelCallback: function() {
+                                    // TODO reset record
+                                },
                                 buttons: [
                                     {
                                         text: this.translations.conflictOverwrite,
@@ -217,7 +231,7 @@ define(['text!./form.html'], function(form) {
                                         text: this.translations.conflictDetach,
                                         align: 'center',
                                         callback: function() {
-                                            this.conflict('detach', keyWordId, keyWord);
+                                            this.resolveConflict('detach', keyWordId, keyWord);
                                             this.sandbox.emit('husky.overlay.warning.close');
                                         }.bind(this)
                                     },
@@ -233,7 +247,14 @@ define(['text!./form.html'], function(form) {
             ]);
         },
 
-        conflict: function(type, keyWordId, keyWord) {
+        /**
+         * Resolves conflict.
+         *
+         * @param {String} type
+         * @param {Integer} keyWordId
+         * @param {Object} keyWord
+         */
+        resolveConflict: function(type, keyWordId, keyWord) {
             var data = {
                 id: keyWordId,
                 keyWord: keyWord
@@ -257,6 +278,8 @@ define(['text!./form.html'], function(form) {
                 } else {
                     this.sandbox.emit('husky.datagrid.records.change', data);
                 }
+            }.bind(this)).fail(function(jqXHR) {
+                this.handleFail(jqXHR, data);
             }.bind(this));
         },
 

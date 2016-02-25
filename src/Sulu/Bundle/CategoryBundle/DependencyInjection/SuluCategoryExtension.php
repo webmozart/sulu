@@ -12,6 +12,7 @@
 namespace Sulu\Bundle\CategoryBundle\DependencyInjection;
 
 use Sulu\Bundle\CategoryBundle\Category\Exception\KeyWordIsMultipleReferencedException;
+use Sulu\Bundle\CategoryBundle\Category\Exception\KeyWordNotUniqueException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -55,6 +56,7 @@ class SuluCategoryExtension extends Extension implements PrependExtensionInterfa
                     'exception' => [
                         'codes' => [
                             KeyWordIsMultipleReferencedException::class => 409,
+                            KeyWordNotUniqueException::class => 409,
                         ],
                     ],
                 ]

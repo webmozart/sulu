@@ -38,6 +38,7 @@ class KeyWordController extends RestController implements ClassResourceInterface
 {
     const FORCE_OVERWRITE = 'overwrite';
     const FORCE_DETACH = 'detach';
+    const FORCE_MERGE = 'merge';
 
     protected static $entityKey = 'key-words';
 
@@ -133,6 +134,9 @@ class KeyWordController extends RestController implements ClassResourceInterface
      * @param Request $request
      *
      * @return Response
+     *
+     * @throws KeyWordIsMultipleReferencedException
+     * @throws KeyWordNotUniqueException
      */
     public function putAction($categoryId, $keyWordId, Request $request)
     {
@@ -144,21 +148,23 @@ class KeyWordController extends RestController implements ClassResourceInterface
 
         // overwrite existing keyword if force is present
         if (null === ($force = $request->get('force'))
-            && !in_array($force, [self::FORCE_OVERWRITE, self::FORCE_DETACH])
+            && !in_array($force, [self::FORCE_OVERWRITE, self::FORCE_DETACH, self::FORCE_MERGE])
             && $keyWord->isReferencedMultiple()
         ) {
             // return conflict if key-word is used by other categories
             throw new KeyWordIsMultipleReferencedException($keyWord);
         }
 
-        // TODO handle force = overwrite and force = detach
-
         $category = $this->getCategoryManager()->findById($categoryId);
 
-        if ($force === self::FORCE_DETACH) {
+        if ($force !== self::FORCE_MERGE && $this->getKeyWordRepository()->findByKeyWord($request->get('keyWord'), $keyWord->getLocale()) !== null) {
+            throw new KeyWordNotUniqueException($keyWord);
+        }
+
+        if ($force === self::FORCE_DETACH || $force === self::FORCE_MERGE) {
             $keyWord = $this->handleDetach($category, $keyWord, $request->get('keyWord'));
         } else {
-            $this->handleOverwrite($category, $keyWord, $request->get('keyWord'));
+            $keyWord = $this->handleOverwrite($category, $keyWord, $request->get('keyWord'));
         }
 
         $this->getEntityManager()->flush();
