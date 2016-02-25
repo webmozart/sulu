@@ -16,6 +16,7 @@ use FOS\RestBundle\Routing\ClassResourceInterface;
 use Sulu\Bundle\CategoryBundle\Category\CategoryManagerInterface;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordManager;
 use Sulu\Bundle\CategoryBundle\Category\KeyWordRepositoryInterface;
+use Sulu\Bundle\CategoryBundle\Entity\Category;
 use Sulu\Bundle\CategoryBundle\Entity\KeyWord;
 use Sulu\Component\Rest\ListBuilder\Doctrine\DoctrineListBuilderFactory;
 use Sulu\Component\Rest\ListBuilder\FieldDescriptorInterface;
@@ -47,6 +48,14 @@ class KeyWordController extends RestController implements ClassResourceInterface
         return $this->handleView($this->view(array_values($this->getFieldDescriptors())));
     }
 
+    /**
+     * Returns list of key-words filtered by the category.
+     *
+     * @param int $categoryId
+     * @param Request $request
+     *
+     * @return Response
+     */
     public function cgetAction($categoryId, Request $request)
     {
         /** @var RestHelperInterface $restHelper */
@@ -55,13 +64,19 @@ class KeyWordController extends RestController implements ClassResourceInterface
         /** @var DoctrineListBuilderFactory $factory */
         $factory = $this->get('sulu_core.doctrine_list_builder_factory');
 
+        /** @var Category $category */
+        $category = $this->get('sulu_category.category_repository')->find($categoryId);
+
         $fieldDescriptor = $this->getFieldDescriptors();
 
         $listBuilder = $factory->create($this->container->getParameter('sulu_category.entity.keyword'));
         $restHelper->initializeListBuilder($listBuilder, $fieldDescriptor);
 
         $listBuilder->where($fieldDescriptor['locale'], $request->get('locale'));
-        // TODO $listBuilder->where($fieldDescriptor['category'], $categoryId);
+        $listBuilder->where(
+            $fieldDescriptor['categoryTranslationIds'],
+            $category->findTranslationByLocale($request->get('locale'))
+        );
 
         $listResponse = $listBuilder->execute();
 
