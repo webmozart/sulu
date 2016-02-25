@@ -199,6 +199,7 @@ define(['text!./form.html'], function(form) {
                         cssClass: 'alert',
                         removeOnClose: true,
                         openOnStart: true,
+                        instanceName: 'warning',
                         slides: [
                             {
                                 title: this.translations.conflictTitle,
@@ -217,7 +218,7 @@ define(['text!./form.html'], function(form) {
                                         align: 'center',
                                         callback: function() {
                                             this.conflict('detach', keyWordId, keyWord);
-                                            // TODO close
+                                            this.sandbox.emit('husky.overlay.warning.close');
                                         }.bind(this)
                                     },
                                     {
@@ -249,9 +250,13 @@ define(['text!./form.html'], function(form) {
                 ),
                 'PUT',
                 data
-            ).then(function() {
-                // TODO for detach remove old record add new one
-                this.sandbox.emit('husky.datagrid.records.change', data);
+            ).then(function(newData) {
+                if (newData.id !== data.id) {
+                    this.sandbox.emit('husky.datagrid.record.remove', data.id);
+                    this.sandbox.emit('husky.datagrid.record.add', newData);
+                } else {
+                    this.sandbox.emit('husky.datagrid.records.change', data);
+                }
             }.bind(this));
         },
 
