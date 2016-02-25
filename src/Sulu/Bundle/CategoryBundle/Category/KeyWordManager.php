@@ -51,19 +51,19 @@ class KeyWordManager implements KeyWordManagerInterface
             $keyWord = $synonym;
         }
 
-        $categoryMeta = $category->findTranslationByLocale($keyWord->getLocale());
+        $categoryTranslation = $category->findTranslationByLocale($keyWord->getLocale());
 
         // if key-word already exists in category
-        if ($categoryMeta->hasKeyWord($keyWord)) {
+        if ($categoryTranslation->hasKeyWord($keyWord)) {
             return $keyWord;
         }
 
-        $keyWord->addCategoryTranslation($categoryMeta);
-        $categoryMeta->addKeyWord($keyWord);
+        $keyWord->addCategoryTranslation($categoryTranslation);
+        $categoryTranslation->addKeyWord($keyWord);
 
         // FIXME category and meta will no be updated if only keyword was changed
         $category->setChanged(new \DateTime());
-        $categoryMeta->setChanged(new \DateTime());
+        $categoryTranslation->setChanged(new \DateTime());
 
         return $keyWord;
     }
@@ -73,14 +73,14 @@ class KeyWordManager implements KeyWordManagerInterface
      */
     public function delete(KeyWord $keyWord, Category $category)
     {
-        $categoryMeta = $category->findTranslationByLocale($keyWord->getLocale());
+        $categoryTranslation = $category->findTranslationByLocale($keyWord->getLocale());
 
-        $keyWord->removeCategoryTranslation($categoryMeta);
-        $categoryMeta->removeKeyWord($keyWord);
+        $keyWord->removeCategoryTranslation($categoryTranslation);
+        $categoryTranslation->removeKeyWord($keyWord);
 
         // FIXME category and meta will no be updated if only keyword was changed
         $category->setChanged(new \DateTime());
-        $categoryMeta->setChanged(new \DateTime());
+        $categoryTranslation->setChanged(new \DateTime());
 
         if ($keyWord->isReferenced()) {
             return false;

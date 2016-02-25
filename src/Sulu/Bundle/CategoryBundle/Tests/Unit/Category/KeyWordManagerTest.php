@@ -56,14 +56,18 @@ class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
         $categoryTranslation->hasKeyWord($exists ? $otherKeyWord->reveal() : $keyWord->reveal())->willReturn($has);
         $categoryTranslation->addKeyWord($exists ? $otherKeyWord->reveal() : $keyWord->reveal())
             ->shouldBeCalledTimes($has ? 0 : 1);
-        $categoryTranslation->setChanged(Argument::any())->shouldBeCalledTimes($has ? 0 : 1);
 
         $category = $this->prophesize(Category::class);
         $category->findTranslationByLocale($locale)->willReturn($categoryTranslation->reveal());
-        $category->setChanged(Argument::any())->shouldBeCalledTimes($has ? 0 : 1);
+
+        $categoryTranslation->setChanged(Argument::any())->willReturn(null);
+        $category->setChanged(Argument::any())->willReturn(null);
 
         if ($exists) {
             $otherKeyWord->addCategoryTranslation($categoryTranslation->reveal())->shouldBeCalledTimes($has ? 0 : 1);
+            $keyWord->removeCategoryTranslation($categoryTranslation->reveal())->shouldBeCalled();
+            $keyWord->isReferenced()->willReturn(true);
+            $categoryTranslation->removeKeyWord($keyWord->reveal())->shouldBeCalled();
         } else {
             $keyWord->addCategoryTranslation($categoryTranslation->reveal())->shouldBeCalledTimes($has ? 0 : 1);
         }
@@ -85,7 +89,7 @@ class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideDeleteData
      */
-    public function testDelete($multipleReferenced = false, $keyWordString = 'Test', $locale = 'de')
+    public function testDelete($referenced = false, $keyWordString = 'Test', $locale = 'de')
     {
         $repository = $this->prophesize(KeyWordRepositoryInterface::class);
         $entityManager = $this->prophesize(EntityManagerInterface::class);
@@ -94,7 +98,7 @@ class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
         $keyWord->getKeyWord()->willReturn($keyWordString);
         $keyWord->getLocale()->willReturn($locale);
         $keyWord->getId()->shouldNotBeCalled();
-        $keyWord->isReferenced()->willReturn($multipleReferenced);
+        $keyWord->isReferenced()->willReturn($referenced);
 
         $categoryTranslation = $this->prophesize(CategoryTranslation::class);
         $categoryTranslation->hasKeyWord($keyWord->reveal())->willReturn(true);
@@ -107,13 +111,13 @@ class KeyWordManagerTest extends \PHPUnit_Framework_TestCase
 
         $keyWord->removeCategoryTranslation($categoryTranslation->reveal())->shouldBeCalled();
 
-        if (!$multipleReferenced) {
+        if (!$referenced) {
             $entityManager->remove($keyWord->reveal())->shouldBeCalled();
         }
 
         $manager = new KeyWordManager($repository->reveal(), $entityManager->reveal());
         $result = $manager->delete($keyWord->reveal(), $category->reveal());
 
-        $this->assertEquals(!$multipleReferenced, $result);
+        $this->assertEquals(!$referenced, $result);
     }
 }

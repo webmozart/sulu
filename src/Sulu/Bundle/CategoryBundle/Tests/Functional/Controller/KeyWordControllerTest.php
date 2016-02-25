@@ -69,12 +69,12 @@ class KeyWordControllerTest extends SuluTestCase
         $this->entityManager->flush();
     }
 
-    public function testPost($keyword = 'Test', $locale = 'de')
+    public function testPost($keyword = 'Test', $locale = 'de', $categoryId = null)
     {
         $client = $this->createAuthenticatedClient();
         $client->request(
             'POST',
-            '/api/categories/' . $this->category1->getId() . '/key-words',
+            '/api/categories/' . ($categoryId ?: $this->category1->getId()) . '/key-words',
             ['locale' => $locale, 'keyWord' => $keyword]
         );
 
@@ -167,14 +167,14 @@ class KeyWordControllerTest extends SuluTestCase
         $this->assertEquals($first['id'], $result['id']);
     }
 
-    public function testPutForce($keyword = 'Test-1', $locale = 'de')
+    public function testPutForceOverwrite($keyword = 'Test-1', $locale = 'de')
     {
         $first = $this->testPost('Test', $locale);
 
         $client = $this->createAuthenticatedClient();
         $client->request(
             'PUT',
-            '/api/categories/' . $this->category1->getId() . '/key-words/' . $first['id'] . '?force=true',
+            '/api/categories/' . $this->category1->getId() . '/key-words/' . $first['id'] . '?force=overwrite',
             ['keyWord' => $keyword]
         );
 
@@ -184,6 +184,30 @@ class KeyWordControllerTest extends SuluTestCase
         $this->assertEquals($keyword, $result['keyWord']);
         $this->assertEquals($locale, $result['locale']);
         $this->assertEquals($first['id'], $result['id']);
+    }
+
+    public function testPutForceDetach($keyword = 'Test-1', $locale = 'de')
+    {
+        $first = $this->testPost('Test', $locale);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'PUT',
+            '/api/categories/' . $this->category1->getId() . '/key-words/' . $first['id'] . '?force=detach',
+            ['keyWord' => $keyword]
+        );
+
+        $result = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $this->assertEquals($keyword, $result['keyWord']);
+        $this->assertEquals($locale, $result['locale']);
+        $this->assertNotNull($result['id']);
+        $this->assertNotEquals($first['id'], $result['id']);
+
+        // old entity should be deleted
+        $entity = $this->entityManager->find(KeyWord::class, $first['id']);
+        $this->assertNull($entity);
     }
 
     public function testPutMultipleCategories($keyword = 'Test-1', $locale = 'de')
@@ -199,20 +223,17 @@ class KeyWordControllerTest extends SuluTestCase
 
         $result = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals(409, $client->getResponse()->getStatusCode());
-
-        $this->assertEquals('Test', $result['keyWord']);
-        $this->assertEquals($locale, $result['locale']);
-        $this->assertEquals($first['id'], $result['id']);
+        $this->assertEquals(2002, $result['code']);
     }
 
-    public function testPutMultipleCategoriesForce($keyword = 'Test-1', $locale = 'de')
+    public function testPutMultipleCategoriesForceOverwrite($keyword = 'Test-1', $locale = 'de')
     {
         $first = $this->testPostExistingOtherCategory('Test', $locale);
 
         $client = $this->createAuthenticatedClient();
         $client->request(
             'PUT',
-            '/api/categories/' . $this->category1->getId() . '/key-words/' . $first['id'] . '?force=true',
+            '/api/categories/' . $this->category1->getId() . '/key-words/' . $first['id'] . '?force=overwrite',
             ['keyWord' => $keyword]
         );
 
@@ -222,6 +243,66 @@ class KeyWordControllerTest extends SuluTestCase
         $this->assertEquals($keyword, $result['keyWord']);
         $this->assertEquals($locale, $result['locale']);
         $this->assertEquals($first['id'], $result['id']);
+    }
+
+    public function testPutMultipleCategoriesForceDetach($keyword = 'Test-1', $locale = 'de')
+    {
+        $first = $this->testPostExistingOtherCategory('Test', $locale);
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'PUT',
+            '/api/categories/' . $this->category1->getId() . '/key-words/' . $first['id'] . '?force=detach',
+            ['keyWord' => $keyword]
+        );
+
+        $result = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $this->assertEquals($keyword, $result['keyWord']);
+        $this->assertEquals($locale, $result['locale']);
+        $this->assertNotNull($result['id']);
+        $this->assertNotEquals($first['id'], $result['id']);
+
+        $entity = $this->entityManager->find(KeyWord::class, $first['id']);
+        $this->assertEquals($first['keyWord'], $entity->getKeyWord());
+    }
+
+    public function testPutSameKeyWord($keyword1 = 'Test-1', $keyword2 = 'Test-2', $locale = 'de')
+    {
+        $data1 = $this->testPost($keyword1, $locale, $this->category1->getId());
+        $data2 = $this->testPost($keyword2, $locale, $this->category2->getId());
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'PUT',
+            '/api/categories/' . $this->category2->getId() . '/key-words/' . $data2['id'],
+            ['keyWord' => $data1['keyWord']]
+        );
+
+        $result = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(409, $client->getResponse()->getStatusCode());
+        $this->assertEquals(2001, $result['code']);
+    }
+
+    public function testPutSameKeyWordMerge($keyword1 = 'Test-1', $keyword2 = 'Test-2', $locale = 'de')
+    {
+        $data1 = $this->testPost($keyword1, $locale, $this->category1->getId());
+        $data2 = $this->testPost($keyword2, $locale, $this->category2->getId());
+
+        $client = $this->createAuthenticatedClient();
+        $client->request(
+            'PUT',
+            '/api/categories/' . $this->category2->getId() . '/key-words/' . $data2['id'] . '?force=merge',
+            ['keyWord' => $data1['keyWord']]
+        );
+
+        $result = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $this->assertEquals($keyword1, $result['keyWord']);
+        $this->assertEquals($locale, $result['locale']);
+        $this->assertEquals($data1['id'], $result['id']);
     }
 
     public function testDelete($keyword = 'Test', $locale = 'de')

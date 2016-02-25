@@ -146,18 +146,21 @@ class KeyWordController extends RestController implements ClassResourceInterface
             return $this->handleView($this->view(null, 404));
         }
 
+        $force = $request->get('force');
+
         // overwrite existing keyword if force is present
-        if (null === ($force = $request->get('force'))
-            && !in_array($force, [self::FORCE_OVERWRITE, self::FORCE_DETACH, self::FORCE_MERGE])
+        if (null === $force
             && $keyWord->isReferencedMultiple()
-        ) {
+            && in_array($force, [self::FORCE_OVERWRITE, self::FORCE_DETACH, self::FORCE_MERGE, null])) {
             // return conflict if key-word is used by other categories
             throw new KeyWordIsMultipleReferencedException($keyWord);
         }
 
         $category = $this->getCategoryManager()->findById($categoryId);
 
-        if ($force !== self::FORCE_MERGE && $this->getKeyWordRepository()->findByKeyWord($request->get('keyWord'), $keyWord->getLocale()) !== null) {
+        if ($force !== self::FORCE_MERGE
+            && $this->getKeyWordRepository()->findByKeyWord($request->get('keyWord'), $keyWord->getLocale()) !== null
+        ) {
             throw new KeyWordNotUniqueException($keyWord);
         }
 
