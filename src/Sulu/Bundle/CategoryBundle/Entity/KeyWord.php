@@ -22,9 +22,9 @@ use Sulu\Component\Security\Authentication\UserInterface;
 class KeyWord implements AuditableInterface
 {
     /**
-     * @var string
+     * @var int
      */
-    private $locale;
+    private $id;
 
     /**
      * @var string
@@ -32,9 +32,9 @@ class KeyWord implements AuditableInterface
     private $keyWord;
 
     /**
-     * @var int
+     * @var string
      */
-    private $id;
+    private $locale;
 
     /**
      * @var Collection
@@ -239,6 +239,14 @@ class KeyWord implements AuditableInterface
     public function isReferenced()
     {
         return $this->getCategoryTranslations()->count() > 0;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCategoryTranslationCount()
+    {
+        return $this->getCategoryTranslations()->count();
     }
 
     /**

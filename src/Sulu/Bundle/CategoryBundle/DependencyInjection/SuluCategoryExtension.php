@@ -62,5 +62,21 @@ class SuluCategoryExtension extends Extension implements PrependExtensionInterfa
                 ]
             );
         }
+
+        if ($container->hasExtension('jms_serializer')) {
+            $container->prependExtensionConfig(
+                'jms_serializer',
+                [
+                    'metadata' => [
+                        'directories' => [
+                            [
+                                'path' => __DIR__ . '/../Resources/config/serializer',
+                                'namespace_prefix' => 'Sulu\Bundle\CategoryBundle\Entity',
+                            ],
+                        ],
+                    ],
+                ]
+            );
+        }
     }
 }
