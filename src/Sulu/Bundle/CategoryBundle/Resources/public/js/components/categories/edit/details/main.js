@@ -159,10 +159,18 @@ define(['text!./form.html'], function(form) {
                     resultKey: 'key-words',
                     searchFields: ['keyWord'],
                     saveParams: {locale: this.locale},
+                    contentFilters: {
+                        categoryTranslationCount: function(content) {
+                            return content > 1 ? this.translations.yes : this.translations.no;
+                        }.bind(this)
+                    },
                     viewOptions: {
                         table: {
                             editable: true,
                             validation: true
+                        },
+                        dropdown: {
+                            limit: 100
                         }
                     }
                 },
@@ -218,9 +226,6 @@ define(['text!./form.html'], function(form) {
                                 okCallback: function() {
                                     this.resolveConflict('overwrite', keyWordId, keyWord);
                                 }.bind(this),
-                                cancelCallback: function() {
-                                    // TODO reset record
-                                },
                                 buttons: [
                                     {
                                         text: this.translations.conflictOverwrite,

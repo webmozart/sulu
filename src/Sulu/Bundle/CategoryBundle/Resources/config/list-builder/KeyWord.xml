@@ -29,7 +29,7 @@
             </orm:joins>
         </group-concat-property>
 
-        <count-property name="categoryTranslationCount" display="always">
+        <count-property name="categoryTranslationCount" display="always" list:translation="sulu.category.used-multiple">
             <orm:field-name>id</orm:field-name>
             <orm:entity-name>SuluCategoryBundle:CategoryTranslation</orm:entity-name>
 
