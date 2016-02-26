@@ -148,6 +148,7 @@ class DoctrineListBuilder extends AbstractListBuilder
         // use ids previously selected ids for query
         $this->queryBuilder->where($this->entityName . '.id IN (:ids)')
             ->setParameter('ids', $ids);
+
         $this->queryBuilder->distinct($this->distinct);
 
         return $this->queryBuilder->getQuery()->getArrayResult();
