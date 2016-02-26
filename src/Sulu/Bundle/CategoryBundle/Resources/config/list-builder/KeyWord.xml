@@ -2,7 +2,7 @@
        xmlns:list="http://schemas.sulu.io/class/list"
        xmlns:orm="http://schemas.sulu.io/class/doctrine">
     <properties>
-        <property name="id" list:translation="public.id" display="never" list:type="integer">
+        <property name="id" list:translation="public.id" display="no" list:type="integer">
             <orm:field-name>id</orm:field-name>
             <orm:entity-name>%sulu_category.entity.keyword%</orm:entity-name>
         </property>
@@ -19,14 +19,26 @@
 
         <group-concat-property name="categoryTranslationIds" display="never" orm:glue=",">
             <orm:field-name>id</orm:field-name>
-            <orm:entity-name>SuluCategoryBundle:Category</orm:entity-name>
+            <orm:entity-name>SuluCategoryBundle:CategoryTranslation</orm:entity-name>
 
             <orm:joins>
                 <orm:join>
-                    <orm:entity-name>SuluCategoryBundle:Category</orm:entity-name>
+                    <orm:entity-name>SuluCategoryBundle:CategoryTranslation</orm:entity-name>
                     <orm:field-name>%sulu_category.entity.keyword%.categoryTranslations</orm:field-name>
                 </orm:join>
             </orm:joins>
         </group-concat-property>
+
+        <count-property name="categoryTranslationCount" display="always">
+            <orm:field-name>id</orm:field-name>
+            <orm:entity-name>SuluCategoryBundle:CategoryTranslation</orm:entity-name>
+
+            <orm:joins>
+                <orm:join>
+                    <orm:entity-name>SuluCategoryBundle:CategoryTranslation</orm:entity-name>
+                    <orm:field-name>%sulu_category.entity.keyword%.categoryTranslations</orm:field-name>
+                </orm:join>
+            </orm:joins>
+        </count-property>
     </properties>
 </class>
