@@ -12,6 +12,7 @@
 namespace Sulu\Component\Content\Document\Subscriber;
 
 use Sulu\Component\Content\Document\Behavior\BlameBehavior;
+use Sulu\Component\Content\Document\Behavior\NonLocalizedBlameBehavior;
 use Sulu\Component\DocumentManager\Event\ConfigureOptionsEvent;
 use Sulu\Component\DocumentManager\Event\MetadataLoadEvent;
 use Sulu\Component\DocumentManager\Event\PersistEvent;
@@ -77,13 +78,16 @@ class BlameSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $encoding = 'system_localized';
+        if ($metadata->getReflectionClass()->isSubclassOf(NonLocalizedBlameBehavior::class)) {
+            $encoding = 'system';
+        }
+
         $metadata->addFieldMapping('creator', [
-            'encoding' => 'system_localized',
-            'type' => 'date',
+            'encoding' => $encoding,
         ]);
         $metadata->addFieldMapping('changer', [
-            'encoding' => 'system_localized',
-            'type' => 'date',
+            'encoding' => $encoding,
         ]);
     }
 

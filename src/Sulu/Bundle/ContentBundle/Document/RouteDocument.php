@@ -23,7 +23,7 @@ use Sulu\Component\DocumentManager\Behavior\Mapping\UuidBehavior;
  * Route Documents are children of the designated route-containing
  * node (which is a child of the webspace node).
  *
- * Routes contain a reference to the content which should be dispayed
+ * Routes contain a reference to the content which should be displayed
  * when the route is resolved by the RouteProvider.
  */
 class RouteDocument implements

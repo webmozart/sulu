@@ -64,5 +64,21 @@ class SuluCustomUrlExtension extends Extension implements PrependExtensionInterf
                 ]
             );
         }
+
+        if ($container->hasExtension('jms_serializer')) {
+            $container->prependExtensionConfig(
+                'jms_serializer',
+                [
+                    'metadata' => [
+                        'directories' => [
+                            [
+                                'path' => __DIR__ . '/../Resources/config/serializer',
+                                'namespace_prefix' => 'Sulu\Component\CustomUrl',
+                            ],
+                        ],
+                    ],
+                ]
+            );
+        }
     }
 }

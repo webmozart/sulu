@@ -272,7 +272,7 @@ class CustomUrlManager implements CustomUrlManagerInterface
         $accessor = PropertyAccess::createPropertyAccessor();
 
         foreach ($metadata->getFieldMappings() as $fieldName => $mapping) {
-            if (!array_key_exists($fieldName, $data) || empty($data[$fieldName])) {
+            if (!array_key_exists($fieldName, $data)) {
                 continue;
             }
 

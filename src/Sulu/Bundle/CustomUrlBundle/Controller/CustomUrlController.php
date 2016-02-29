@@ -13,6 +13,7 @@ namespace Sulu\Bundle\CustomUrlBundle\Controller;
 use FOS\RestBundle\Controller\Annotations\RouteResource;
 use Hateoas\Representation\CollectionRepresentation;
 use Hateoas\Representation\RouteAwareRepresentation;
+use JMS\Serializer\SerializationContext;
 use Sulu\Component\CustomUrl\Manager\CannotDeleteCurrentRouteException;
 use Sulu\Component\DocumentManager\Exception\DocumentNotFoundException;
 use Sulu\Component\Rest\Exception\RestException;
@@ -77,7 +78,11 @@ class CustomUrlController extends RestController
             $document->getTarget()->getTitle();
         }
 
-        return $this->handleView($this->view($document));
+        return $this->handleView(
+            $this->view($document)->setSerializationContext(
+                SerializationContext::create()->setGroups(['defaultCustomUrl', 'smallPage', 'fullRoute'])
+            )
+        );
     }
 
     /**
@@ -101,7 +106,11 @@ class CustomUrlController extends RestController
             return $this->handleView($this->view($ex->toArray(), 400));
         }
 
-        return $this->handleView($this->view($document));
+        return $this->handleView(
+            $this->view($document)->setSerializationContext(
+                SerializationContext::create()->setGroups(['defaultCustomUrl', 'smallPage', 'fullRoute'])
+            )
+        );
     }
 
     /**
@@ -129,7 +138,11 @@ class CustomUrlController extends RestController
             return $this->handleView($this->view($ex->toArray(), 400));
         }
 
-        return $this->handleView($this->view($document));
+        return $this->handleView(
+            $this->view($document)->setSerializationContext(
+                SerializationContext::create()->setGroups(['defaultCustomUrl', 'smallPage', 'fullRoute'])
+            )
+        );
     }
 
     /**

@@ -82,6 +82,10 @@
                 <source>custom-urls.no-target</source>
                 <target>Il n'existe pas de page cible</target>
             </trans-unit>
+            <trans-unit id="21" resname="custom-urls.custom-url.default-value">
+                <source>custom-urls.custom-url.default-value</source>
+                <target>Choisissez s'il vous plaît ...</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

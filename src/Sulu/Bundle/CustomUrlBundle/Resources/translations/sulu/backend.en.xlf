@@ -82,6 +82,10 @@
                 <source>custom-urls.no-target</source>
                 <target>No target page available</target>
             </trans-unit>
+            <trans-unit id="21" resname="custom-urls.custom-url.default-value">
+                <source>custom-urls.custom-url.default-value</source>
+                <target>Please choose ...</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
