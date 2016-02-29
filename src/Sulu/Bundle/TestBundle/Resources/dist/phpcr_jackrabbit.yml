@@ -13,3 +13,4 @@ doctrine_phpcr:
             curl_options:
                 CURLOPT_FORBID_REUSE: 1
                 CURLOPT_FRESH_CONNECT: 1
+                CURLOPT_HTTP_VERSION: 1
