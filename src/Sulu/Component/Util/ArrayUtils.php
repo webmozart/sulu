@@ -30,12 +30,13 @@ final class ArrayUtils
     {
         $language = new ExpressionLanguage();
 
-        return array_filter(
-            $collection,
-            function ($item, $key) use ($language, $expression, $context) {
-                return $language->evaluate($expression, array_merge($context, ['item' => $item, 'key' => $key]));
-            },
-            ARRAY_FILTER_USE_BOTH
-        );
+        $result = [];
+        foreach ($collection as $key => $item) {
+            if ($language->evaluate($expression, array_merge($context, ['item' => $item, 'key' => $key]))) {
+                $result[$key] = $item;
+            }
+        }
+
+        return $result;
     }
 }
