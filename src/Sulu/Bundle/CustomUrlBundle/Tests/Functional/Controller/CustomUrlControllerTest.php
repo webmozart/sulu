@@ -132,7 +132,7 @@ class CustomUrlControllerTest extends SuluTestCase
 
         foreach ($data as $key => $value) {
             if ($key === 'target') {
-                self::assertEquals($value['uuid'], $responseData[$key]['uuid'], $key);
+                self::assertEquals($value['uuid'], $responseData[$key]['id'], $key);
             } else {
                 self::assertEquals($value, $responseData[$key], $key);
             }
@@ -506,7 +506,7 @@ class CustomUrlControllerTest extends SuluTestCase
 
         foreach ($data as $key => $value) {
             if ($key === 'target') {
-                self::assertEquals($value['uuid'], $responseData[$key]['uuid'], $key);
+                self::assertEquals($value['uuid'], $responseData[$key]['id'], $key);
             } else {
                 self::assertEquals($value, $responseData[$key], $key);
             }
@@ -584,7 +584,7 @@ class CustomUrlControllerTest extends SuluTestCase
 
         foreach ($data as $key => $value) {
             if ($key === 'target') {
-                self::assertEquals($value['uuid'], $responseData[$key]['uuid'], $key);
+                self::assertEquals($value['uuid'], $responseData[$key]['id'], $key);
             } else {
                 self::assertEquals($value, $responseData[$key], $key);
             }

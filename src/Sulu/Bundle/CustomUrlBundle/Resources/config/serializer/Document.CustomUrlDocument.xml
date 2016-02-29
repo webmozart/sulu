@@ -3,9 +3,12 @@
     <class name="Sulu\Component\CustomUrl\Document\CustomUrlDocument">
         <property name="uuid" type="string" groups="defaultCustomUrl"/>
         <property name="title" type="string" groups="defaultCustomUrl"/>
+        <property name="nodeName" type="string" groups="defaultCustomUrl"/>
         <property name="published" type="boolean" groups="defaultCustomUrl"/>
         <property name="created" type="DateTime" groups="defaultCustomUrl"/>
         <property name="changed" type="DateTime" groups="defaultCustomUrl"/>
+        <property name="creator" type="integer" groups="defaultCustomUrl"/>
+        <property name="changer" type="integer" groups="defaultCustomUrl"/>
         <property name="baseDomain" type="string" groups="defaultCustomUrl"/>
         <property name="domainParts" type="array" groups="defaultCustomUrl"/>
         <property name="target" type="Sulu\Bundle\ContentBundle\Document\BasePageDocument" groups="defaultCustomUrl"/>

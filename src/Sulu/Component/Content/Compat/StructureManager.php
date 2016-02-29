@@ -73,11 +73,7 @@ class StructureManager implements StructureManagerInterface
     }
 
     /**
-     * Wrap the given Structure with a legacy (bridge) structure.
-     *
-     * @param Structure
-     *
-     * @return StructureBridge
+     * {@inheritdoc}
      */
     public function wrapStructure($type, StructureMetadata $structure)
     {
