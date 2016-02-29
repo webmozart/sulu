@@ -60,35 +60,11 @@ define(function() {
         },
 
         templates = {
-            mediaSelection: function(options) {
-                return [
-                    '<div class="media-selection-overlay">',
-                    '   <div class="media-selection-overlay-navigation-container pull-left"></div>',
-                    '   <div class="media-selection-overlay-content">',
-                    '       <div class="fa-times media-selection-overlay-close"></div>',
-                    '       <div class="media-selection-overlay-dropzone-container"></div>',
-                    '       <div class="media-selection-overlay-header" ondragstart="return false;">',
-                    '           <div class="media-selection-overlay-toolbar-container"></div>',
-                    '           <div id="selected-images-count" class="media-selection-overlay-selected-info"></div>',
-                    '       </div>',
-                    '       <div class="media-selection-overlay-content-area" ondragstart="return false;">',
-                    '           <div class="media-selection-overlay-content-title">', options.contentDefaultTitle, '</div>',
-                    '           <div class="media-selection-overlay-datagrid-container"></div>',
-                    '       </div>',
-                    '   </div>',
-                    '</div>'
-                ].join('');
-            },
-
-            mediaSelectedInfo: function(options) {
-                return options.selectedCounter + ' ' + options.selectedImagesLabel;
-            },
-
             contentItem: function(id, collection, title, thumbnails) {
                 return [
                     '<a href="#" class="link" data-id="', id, '" data-collection="', collection, '">',
-                    '   <img src="', thumbnails['50x50'], '"/>',
-                    '   <span class="title">', title, '</span>',
+                    '    <img src="', thumbnails['50x50'], '"/>',
+                    '    <span class="title">', title, '</span>',
                     '</a>'
                 ].join('');
             }

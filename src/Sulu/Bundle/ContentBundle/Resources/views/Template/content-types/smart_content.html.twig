@@ -19,7 +19,6 @@
      {% endif %}
      data-aura-url="/admin/api/items?{% if webspaceKey != '' %}webspace={{ webspaceKey }}&{% endif %}locale={{ languageCode }}&excluded=<%= options.id %>&provider={{ params.provider.value }}"
      data-aura-navigate-event="sulu.content.navigate"
-     data-aura-id-key="uuid"
      data-aura-tags-auto-complete-url="/admin/api/tags?flat=true&sortBy=name&searchFields=name"
      data-aura-sort-by='{{ sulu_parameter_to_select(params.sorting.value, userLocale) | json_encode }}'
      data-aura-present-as='{{ sulu_parameter_to_select(params.present_as.value, userLocale) | json_encode }}'></div>

@@ -47,7 +47,7 @@ define([], function() {
             contentItem: function(id, value) {
                 return [
                     '<a href="#" data-id="', id, '" class="link">',
-                    '   <span class="value">', value, '</span>',
+                    '    <span class="value">', value, '</span>',
                     '</a>'
                 ].join('');
             }
@@ -64,14 +64,12 @@ define([], function() {
          * custom event handling
          */
         bindCustomEvents = function() {
-            this.sandbox.on('husky.overlay.internal-links.' + this.options.instanceName + '.add.initialized', initColumnNavigation.bind(this));
+            this.sandbox.on(
+                'husky.overlay.internal-links.' + this.options.instanceName + '.add.initialized',
+                initColumnNavigation.bind(this)
+            );
 
             this.sandbox.on('husky.column-navigation.' + this.options.instanceName + '.action', selectLink.bind(this));
-
-            // adjust position of overlay after column-navigation has initialized
-            this.sandbox.on('husky.column-navigation.' + this.options.instanceName + '.initialized', function() {
-                this.sandbox.emit('husky.overlay.internal-links.' + this.options.instanceName + '.add.set-position');
-            }.bind(this));
 
             this.sandbox.dom.on(this.$el, 'click', function(e) {
                 var id = this.sandbox.dom.data(e.currentTarget, 'id');

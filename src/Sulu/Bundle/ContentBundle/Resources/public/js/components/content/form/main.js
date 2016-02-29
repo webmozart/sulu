@@ -59,9 +59,6 @@ define(['app-config', 'config', 'sulucontent/components/content/preview/main'], 
 
             // navigate away
             this.sandbox.on('sulu.content.navigate', this.navigate, this);
-            this.sandbox.on('sulu.content.contents.saved', function() {
-                this.setHeaderBar(true);
-            }, this);
         },
 
         initializeResourceLocator: function() {
@@ -487,7 +484,7 @@ define(['app-config', 'config', 'sulucontent/components/content/preview/main'], 
                 this.sandbox.emit('sulu.router.navigate', route);
             }.bind(this);
 
-            if (this.contentChanged) {
+            if (!this.saved) {
                 this.sandbox.emit('sulu.overlay.show-warning',
                     'sulu.overlay.be-careful',
                     'content.template.dialog.content',

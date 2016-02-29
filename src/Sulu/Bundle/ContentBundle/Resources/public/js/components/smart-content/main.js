@@ -134,8 +134,8 @@ define(['services/husky/util'], function(util) {
             datasource: null,
             categoryRoot: null,
             displayOptions: {},
-    navigateEvent: 'sulu.router.navigate'
-},
+            navigateEvent: 'sulu.router.navigate'
+        },
 
         displayOptionsDefaults = {
             tags: true,
@@ -602,6 +602,8 @@ define(['services/husky/util'], function(util) {
                         dataId: item[this.options.idKey],
                         value: item[this.options.titleKey],
                         image: item[this.options.imageKey] || null,
+                        webspace: this.options.webspace,
+                        locale: this.options.locale,
                         num: (index + 1)
                     }));
                 }.bind(this));
