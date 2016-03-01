@@ -41,6 +41,7 @@ class ListRepresentationCsvHandler implements SubscribingHandlerInterface
         array $type,
         Context $context
     ) {
+        // type array do not serialize "_embedded" items
         $array = json_decode($this->serializer->serialize($object, 'json'), true);
 
         return $context->accept($array['_embedded'][$object->getRel()]);

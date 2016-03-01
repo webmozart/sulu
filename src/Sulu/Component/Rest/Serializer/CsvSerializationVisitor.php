@@ -12,10 +12,16 @@ class CsvSerializationVisitor extends JsonSerializationVisitor
     public function getResult()
     {
         $root = $this->getRoot();
-        if ($root instanceof \ArrayObject) {
-            $root = iterator_to_array($root);
+
+        $lines = [];
+        if (count($root) > 0) {
+            $lines[] = implode(';', array_keys($root[0]));
         }
 
-        return implode(';', array_values($root));
+        foreach ($root as $item) {
+            $lines[] = implode(';', array_values($item));
+        }
+
+        return implode(PHP_EOL, $lines);
     }
 }
