@@ -11,8 +11,9 @@
 
 namespace Sulu\Bundle\WebsiteBundle\Routing;
 
+use Sulu\Component\Localization\Localization;
 use Sulu\Component\Webspace\Manager\WebspaceManagerInterface;
-use Sulu\Component\Webspace\Portal;
+use Sulu\Component\Webspace\PortalInformation;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -74,12 +75,110 @@ class PortalLoader extends Loader
      */
     private function generatePortalRoutes(Route $importedRoute, $importedRouteName)
     {
-        foreach ($this->webspaceManager->getPortalInformations($this->environment) as $portalInformation) {
-            $route = clone $importedRoute;
-            $route->setHost($portalInformation->getHost());
-            $route->setPath($portalInformation->getPrefix() . $route->getPath());
+        $portalInformationCollection = $this->webspaceManager->getPortalInformations($this->environment);
+        foreach ($portalInformationCollection as $portalInformation) {
+            if (!strpos($portalInformation->getUrl(), '*')) {
+                $route = $this->createRoute($importedRoute, $portalInformation);
 
-            $this->collection->add($portalInformation->getUrl() . '.' . $importedRouteName, $route);
+                // deprecated only for backward-compatibility of route names
+                $this->collection->add(sprintf('%s.%s', $portalInformation->getUrl(), $importedRouteName), $route);
+                $this->collection->add(
+                    sprintf(
+                        '%s.%s.%s',
+                        $portalInformation->getUrl(),
+                        $portalInformation->getLocale(),
+                        $importedRouteName
+                    ),
+                    $route
+                );
+                continue;
+            }
+
+            foreach ($portalInformation->getPortal()->getLocalizations() as $localization) {
+                $route = $this->createLocalizedRoute(
+                    $importedRoute,
+                    $portalInformation,
+                    $portalInformationCollection,
+                    $localization
+                );
+                $this->collection->add(
+                    sprintf(
+                        '%s.%s.%s',
+                        $portalInformation->getUrl(),
+                        $localization->getLocalization(),
+                        $importedRouteName
+                    ),
+                    $route
+                );
+            }
         }
+    }
+
+    /**
+     * Create a localized route.
+     *
+     * @param Route $importedRoute
+     * @param PortalInformation $portalInformation
+     * @param array $portalInformationCollection
+     * @param Localization $localization
+     *
+     * @return Route
+     */
+    private function createLocalizedRoute(
+        Route $importedRoute,
+        PortalInformation $portalInformation,
+        array $portalInformationCollection,
+        Localization $localization
+    ) {
+        $currentPortalInformation = $portalInformation;
+        if (strpos($portalInformation->getUrl(), '*')) {
+            $currentPortalInformation = $this->getPortalInformation($localization, $portalInformationCollection);
+        }
+
+        return $this->createRoute($importedRoute, $currentPortalInformation);
+    }
+
+    /**
+     * Create a route.
+     *
+     * @param Route $importedRoute
+     * @param PortalInformation $portalInformation
+     *
+     * @return Route
+     */
+    private function createRoute(Route $importedRoute, PortalInformation $portalInformation)
+    {
+        $route = clone $importedRoute;
+        $route->setHost($portalInformation->getHost());
+        $route->setPath($portalInformation->getPrefix() . $route->getPath());
+
+        return $route;
+    }
+
+    /**
+     * Returns main portal-information for given locale.
+     * If no main exists it returns the first portal-information which has the given locale.
+     *
+     * @param Localization $localization
+     * @param PortalInformation[] $portalInformationCollection
+     *
+     * @return PortalInformation
+     */
+    private function getPortalInformation(Localization $localization, array $portalInformationCollection)
+    {
+        $result = null;
+        foreach ($portalInformationCollection as $portalInformation) {
+            if ($portalInformation->getLocale() === $localization->getLocalization()) {
+                if ($portalInformation->isMain()) {
+                    // if a main exists return always this
+                    return $portalInformation;
+                } elseif ($result === null) {
+                    // otherwise return first portal-information which has the given locale
+                    $result = $portalInformation;
+                }
+            }
+        }
+
+        return $result;
     }
 }

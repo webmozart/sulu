@@ -130,7 +130,7 @@ class PortalInformation implements ArrayableInterface
     /**
      * Returns the localization for this PortalInformation.
      *
-     * @return Localization
+     * @return string
      */
     public function getLocale()
     {

@@ -11,6 +11,22 @@ them.
 app/console sf sulu:webspaces:init
 ```
 
+The name of symfony-routes which are loaded by the portal-loader has changed (e.g. the `website_search` route). The old
+keeps to work but are deprecated. If you want to use the custom-urls you have to upgrade your route generation in the
+twig-templates.
+
+__Before:__
+
+```twig
+{{ path(request.portalUrl ~ '.website_search') }}
+```
+
+__After:__
+
+```twig
+{{ path(request.portalUrl ~ '.' ~ request.locale ~ '.website_search') }}
+```
+
 ### Definition of security contexts
 
 The definition of security contexts in the `Admin` classes has changed. They
