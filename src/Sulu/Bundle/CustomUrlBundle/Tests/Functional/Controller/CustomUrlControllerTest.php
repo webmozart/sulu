@@ -121,7 +121,7 @@ class CustomUrlControllerTest extends SuluTestCase
         self::assertEquals(
             $statusCode,
             $response->getStatusCode(),
-            array_key_exists('error', $responseData) ? $responseData['error']['message'] : ''
+            json_encode($responseData)
         );
 
         if ($statusCode !== 200) {

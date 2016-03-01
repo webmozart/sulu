@@ -32,6 +32,11 @@ abstract class SuluTestCase extends BaseTestCase
     protected static $currentKernel = 'admin';
 
     /**
+     * @var PHPCRImporter
+     */
+    protected $importer;
+
+    /**
      * {@inheritdoc}
      */
     public static function setUpBeforeClass()
@@ -42,6 +47,13 @@ abstract class SuluTestCase extends BaseTestCase
         if (!gc_enabled()) {
             gc_enable();
         }
+    }
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->importer = new PHPCRImporter($this->getContainer()->get('sulu.phpcr.session')->getSession());
     }
 
     /**
@@ -156,8 +168,14 @@ abstract class SuluTestCase extends BaseTestCase
             $session->save();
         }
 
-        $this->getContainer()->get('sulu_document_manager.initializer')->initialize();
-        $session->save();
+        if (!$this->importer) {
+            $this->importer = new PHPCRImporter($session);
+        }
+
+        // to update this file use following command
+        // php vendor/symfony-cmf/testing/bin/console doctrine:phpcr:workspace:export -p /cmf \
+        // src/Sulu/Bundle/TestBundle/Resources/dump/initial-state.xml
+        $this->importer->import(__DIR__ . '/../Resources/dump/initial-state.xml');
     }
 
     /**
