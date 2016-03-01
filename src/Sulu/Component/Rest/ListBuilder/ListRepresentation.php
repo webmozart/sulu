@@ -67,6 +67,11 @@ class ListRepresentation extends PaginatedRepresentation
     protected $total;
 
     /**
+     * @var string
+     */
+    protected $rel;
+
+    /**
      * @param mixed  $data       The data which will be presented
      * @param string $rel        The name of the relation inside of the _embedded field
      * @param string $route      The name of the route, for generating the links
@@ -87,5 +92,16 @@ class ListRepresentation extends PaginatedRepresentation
         );
 
         $this->total = $total;
+        $this->rel = $rel;
+    }
+
+    /**
+     * Return rel name.
+     *
+     * @return string
+     */
+    public function getRel()
+    {
+        return $this->rel;
     }
 }

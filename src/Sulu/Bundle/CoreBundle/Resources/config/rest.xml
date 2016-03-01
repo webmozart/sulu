@@ -40,7 +40,15 @@
             <call method="setOptions">
                 <argument>%jms_serializer.json_serialization_visitor.options%</argument>
             </call>
+
             <tag name="jms_serializer.serialization_visitor" format="csv" />
+        </service>
+
+        <service id="sulu_core.rest.csv_handler.list_representation"
+                 class="Sulu\Component\Rest\Serializer\ListRepresentationCsvHandler">
+            <argument type="service" id="jms_serializer.serializer"/>
+
+            <tag name="jms_serializer.subscribing_handler"/>
         </service>
     </services>
 </container>
